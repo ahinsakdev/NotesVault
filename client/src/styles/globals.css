@@ -1,0 +1,2601 @@
+@import "tailwindcss";
+@import "tippy.js/dist/tippy.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+
+  --font-reading: Georgia, "Times New Roman", Times, serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-elevated: var(--surface-elevated);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+
+  --color-note-purple: var(--note-purple);
+  --color-note-blue: var(--note-blue);
+  --color-note-green: var(--note-green);
+  --color-note-orange: var(--note-orange);
+  --color-note-red: var(--note-red);
+
+  --shadow-card: var(--card-shadow);
+  --shadow-dropdown: var(--dropdown-shadow);
+  --shadow-dialog: var(--dialog-shadow);
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+:root {
+  color-scheme: light;
+
+  --background: #fcfbfa;
+  --foreground: #171412;
+  --editor-foreground: #6b5548;
+
+  --surface: #ffffff;
+  --surface-subtle: #f7f5f3;
+  --surface-elevated: #ffffff;
+
+  --card: #ffffff;
+  --card-foreground: #171412;
+
+  --popover: #ffffff;
+  --popover-foreground: #171412;
+
+  --primary: #694d3c;
+  --primary-hover: #594032;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f1eeeb;
+  --secondary-hover: #e8e3df;
+  --secondary-foreground: #302925;
+
+  --muted: #f5f2ef;
+  --muted-foreground: #6d635f;
+
+  --accent: #eee9ff;
+  --accent-foreground: #6d42d8;
+
+  --border: #e1dedc;
+  --border-strong: #d7d3d0;
+  --input: #ddd9d6;
+  --ring: var(--primary);
+
+  --success: #2f8a4f;
+  --success-subtle: #edf8f1;
+
+  --warning: #d98b18;
+  --warning-subtle: #fff7e8;
+
+  --danger: #dc3d3d;
+  --danger-subtle: #fff0f0;
+
+  --editor-focus-border: var(--primary);
+  --editor-focus-shadow: rgb(105 77 60 / 0.12);
+
+  --code-surface: #171717;
+  --code-surface-elevated: #202020;
+  --code-border: #343434;
+  --code-foreground: #e7e5e4;
+  --code-muted-foreground: #a8a29e;
+  --code-hover: #2b2b2b;
+
+  --note-purple: #7145d8;
+  --note-blue: #4775d1;
+  --note-green: #3e9960;
+  --note-orange: #dd8245;
+  --note-red: #df5353;
+
+  --card-shadow:
+    0 0 0 1px rgb(39 31 26 / 0.04), 0 10px 24px rgb(39 31 26 / 0.05);
+
+  --dropdown-shadow:
+    0 10px 24px rgb(39 31 26 / 0.08), 0 3px 8px rgb(39 31 26 / 0.04);
+
+  --dialog-shadow: 0 24px 56px rgb(39 31 26 / 0.14);
+
+  --motion-fast: 150ms;
+  --motion-standard: 200ms;
+  --motion-slow: 300ms;
+
+  --motion-ease-standard: ease-out;
+  --motion-ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #07111f;
+  --foreground: #f5f7fb;
+  --editor-foreground: #f1e7d8;
+
+  --surface: #0a1626;
+  --surface-subtle: #0c192b;
+  --surface-elevated: #101d30;
+
+  --card: #0e1b2d;
+  --card-foreground: #f5f7fb;
+
+  --popover: #101d30;
+  --popover-foreground: #f5f7fb;
+
+  --primary: #6d3df5;
+  --primary-hover: #7c52f7;
+  --primary-foreground: #ffffff;
+
+  --secondary: #142238;
+  --secondary-hover: #1a2a43;
+  --secondary-foreground: #e8edf5;
+
+  --muted: #111f33;
+  --muted-foreground: #94a3b8;
+
+  --accent: #211a4c;
+  --accent-foreground: #c4b5fd;
+
+  --border: #203047;
+  --border-strong: #2b3d57;
+  --input: #2a3a52;
+  --ring: var(--primary);
+
+  --success: #4ade80;
+  --success-subtle: #0d2f25;
+
+  --warning: #fbbf24;
+  --warning-subtle: #34260f;
+
+  --danger: #fb7185;
+  --danger-subtle: #351520;
+
+  --editor-focus-border: var(--primary);
+  --editor-focus-shadow: rgb(109 61 245 / 0.12);
+
+  --code-surface: #080d15;
+  --code-surface-elevated: #0d1420;
+  --code-border: #253247;
+  --code-foreground: #e5edf7;
+  --code-muted-foreground: #8fa0b6;
+  --code-hover: #172235;
+
+  --note-purple: #a78bfa;
+  --note-blue: #60a5fa;
+  --note-green: #4ade80;
+  --note-orange: #fb923c;
+  --note-red: #fb7185;
+
+  --card-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.025), 0 12px 28px rgb(0 0 0 / 0.2);
+
+  --dropdown-shadow: 0 16px 30px rgb(0 0 0 / 0.3);
+
+  --dialog-shadow: 0 28px 60px rgb(0 0 0 / 0.42);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--background);
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  color: inherit;
+  font: inherit;
+}
+
+button,
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+img,
+picture,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+textarea,
+select {
+  min-width: 0;
+}
+
+textarea {
+  resize: vertical;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  border: 0;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 24%, transparent);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+#root {
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+/* ---------- Global Search Input Reset ---------- */
+
+.global-search-input,
+.global-search-input:hover,
+.global-search-input:focus,
+.global-search-input:focus-visible,
+.global-search-input:active {
+  appearance: none;
+  -webkit-appearance: none;
+
+  border: 0 !important;
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+
+  background: transparent;
+}
+
+.global-search-input::-webkit-search-decoration,
+.global-search-input::-webkit-search-cancel-button,
+.global-search-input::-webkit-search-results-button,
+.global-search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.global-search-input::-ms-clear,
+.global-search-input::-ms-reveal {
+  display: none;
+}
+
+/* ---------- Dedicated Search Input ---------- */
+
+.notesvault-search-page-input,
+.notesvault-search-page-input:focus,
+.notesvault-search-page-input:focus-visible {
+  appearance: none;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+
+.notesvault-search-page-input::-webkit-search-decoration,
+.notesvault-search-page-input::-webkit-search-cancel-button,
+.notesvault-search-page-input::-webkit-search-results-button,
+.notesvault-search-page-input::-webkit-search-results-decoration {
+  display: none;
+  appearance: none;
+}
+
+/* ---------- Motion Foundation ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Keyboard Focus ---------- */
+
+.notesvault-focus-ring:focus-visible,
+.notesvault-shell-nav-item:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ---------- NotesVault Rich Editor ---------- */
+
+.notesvault-editor {
+  color: var(--editor-foreground);
+  caret-color: var(--primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.notesvault-editor > * {
+  color: inherit;
+}
+
+.notesvault-editor h1,
+.notesvault-editor h2,
+.notesvault-editor h3,
+.notesvault-editor h4,
+.notesvault-editor h5,
+.notesvault-editor h6,
+.notesvault-editor p,
+.notesvault-editor li,
+.notesvault-editor blockquote,
+.notesvault-editor td,
+.notesvault-editor th {
+  color: inherit;
+}
+
+.notesvault-editor strong,
+.notesvault-editor em,
+.notesvault-editor del {
+  color: inherit;
+}
+
+.notesvault-editor p {
+  margin: 0.75rem 0;
+}
+
+.notesvault-editor h1 {
+  margin: 1.5rem 0 0.75rem;
+  font-size: 1.75rem;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.notesvault-editor h2 {
+  margin: 1.35rem 0 0.65rem;
+  font-size: 1.35rem;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+
+.notesvault-editor h3 {
+  margin: 1.2rem 0 0.55rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.notesvault-editor ul {
+  margin: 0.75rem 0;
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+.notesvault-editor ol {
+  margin: 0.75rem 0;
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.notesvault-editor li {
+  margin: 0.25rem 0;
+}
+
+.notesvault-editor blockquote {
+  margin: 1rem 0;
+  border-left: 3px solid var(--primary);
+  background: var(--surface-subtle);
+  padding: 0.75rem 1rem;
+  color: inherit;
+}
+
+.notesvault-editor blockquote p {
+  color: inherit;
+}
+
+.notesvault-editor code:not(pre code) {
+  border: 1px solid var(--border);
+  background: var(--surface-subtle);
+  padding: 0.1rem 0.3rem;
+  color: inherit;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.85em;
+}
+
+/* ---------- Professional Code Blocks ---------- */
+
+.notesvault-code-shell {
+  margin: 1.25rem 0;
+  overflow: hidden;
+  border: 1px solid var(--code-border);
+  background: var(--code-surface);
+  color: var(--code-foreground);
+}
+
+.notesvault-code-header {
+  display: flex;
+  min-height: 2.35rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--code-border);
+  background: var(--code-surface-elevated);
+  padding: 0.4rem 0.55rem 0.4rem 0.75rem;
+  color: var(--code-muted-foreground);
+  font-family: var(--font-sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
+
+.notesvault-code-copy {
+  display: inline-flex;
+  height: 1.65rem;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--code-border);
+  background: transparent;
+  padding: 0 0.5rem;
+  color: var(--code-muted-foreground);
+  font-size: 0.6rem;
+  font-weight: 600;
+  transition:
+  border-color var(--motion-fast) var(--motion-ease-standard),
+  background-color var(--motion-fast) var(--motion-ease-standard),
+  color var(--motion-fast) var(--motion-ease-standard);
+}
+
+.notesvault-code-copy:hover {
+  background: var(--code-hover);
+  color: var(--code-foreground);
+}
+
+.notesvault-code-copy:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.notesvault-editor pre.notesvault-code-block {
+  margin: 0;
+  overflow-x: auto;
+  border: 0;
+  background: var(--code-surface);
+  padding: 1rem 1.1rem;
+  color: var(--code-foreground);
+  scrollbar-width: thin;
+  scrollbar-color: var(--code-border) transparent;
+}
+
+.notesvault-editor pre.notesvault-code-block::-webkit-scrollbar {
+  height: 4px;
+}
+
+.notesvault-editor pre.notesvault-code-block::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notesvault-editor pre.notesvault-code-block::-webkit-scrollbar-thumb {
+  background: var(--code-border);
+  border-radius: 0;
+}
+
+.notesvault-code-content {
+  display: block;
+  min-width: max-content;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.notesvault-code-block > code {
+  display: block;
+  min-width: max-content;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.76rem;
+  line-height: 1.75;
+}
+
+.notesvault-reader .notesvault-code-shell {
+  margin: 1.5rem 0;
+}
+
+.notesvault-reader .notesvault-code-block > code {
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+
+.notesvault-editor > pre.notesvault-code-block {
+  margin: 1.25rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--code-border);
+  background: var(--code-surface);
+  padding: 1rem 1.1rem;
+  color: var(--code-foreground);
+  scrollbar-width: thin;
+}
+
+.notesvault-editor > pre.notesvault-code-block code {
+  display: block;
+  min-width: max-content;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 0.76rem;
+  line-height: 1.75;
+}
+
+.notesvault-editor hr {
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.notesvault-editor mark {
+  background: #fef08a;
+  color: #27272a;
+  padding: 0.05rem 0.15rem;
+}
+
+.notesvault-editor p.is-editor-empty:first-child::before {
+  float: left;
+  height: 0;
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
+.notesvault-editor .notesvault-editor-link {
+  color: var(--primary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ---------- Editor Focus Surface ---------- */
+
+.notesvault-editor {
+  border: 1px solid transparent;
+  transition:
+  border-color var(--motion-standard) var(--motion-ease-standard),
+  box-shadow var(--motion-standard) var(--motion-ease-standard),
+  background-color var(--motion-standard) var(--motion-ease-standard);
+}
+
+.notesvault-editor:focus,
+.notesvault-editor:focus-visible,
+.notesvault-editor.ProseMirror-focused {
+  border-color: var(--editor-focus-border);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--editor-focus-shadow);
+}
+
+/* ---------- NotesVault Reader ---------- */
+
+.notesvault-reader {
+  min-height: auto;
+  border: 0;
+  color: var(--editor-foreground);
+  cursor: default;
+  box-shadow: none;
+}
+
+.notesvault-reader:focus,
+.notesvault-reader:focus-visible,
+.notesvault-reader.ProseMirror-focused {
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+.notesvault-reader > *:first-child {
+  margin-top: 0;
+}
+
+.notesvault-reader p {
+  margin: 0.8rem 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.notesvault-reader h1,
+.notesvault-reader h2,
+.notesvault-reader h3 {
+  color: var(--editor-foreground);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 600;
+}
+
+.notesvault-reader h1 {
+  margin: 2.25rem 0 0.8rem;
+  font-size: 1.7rem;
+  line-height: 1.3;
+}
+
+.notesvault-reader h2 {
+  margin: 2rem 0 0.7rem;
+  font-size: 1.3rem;
+  line-height: 1.35;
+}
+
+.notesvault-reader h3 {
+  margin: 1.65rem 0 0.6rem;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.notesvault-reader ul,
+.notesvault-reader ol {
+  margin: 0.8rem 0;
+}
+
+.notesvault-reader li {
+  margin: 0.3rem 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.notesvault-reader blockquote {
+  margin: 1.5rem 0;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--primary);
+  background: var(--surface-subtle);
+  padding: 0.85rem 1rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+}
+
+.notesvault-reader pre {
+  margin: 1.5rem 0;
+}
+
+.notesvault-reader .tableWrapper {
+  margin: 1.5rem 0;
+}
+
+.notesvault-reader a {
+  cursor: pointer;
+}
+
+@media print {
+  .notesvault-reader {
+    color: #171412;
+  }
+
+  .notesvault-reader pre,
+  .notesvault-reader table,
+  .notesvault-reader blockquote {
+    break-inside: avoid;
+  }
+}
+
+/* ---------- Reader Outline ---------- */
+
+.notesvault-reader h1,
+.notesvault-reader h2,
+.notesvault-reader h3 {
+  scroll-margin-top: 5rem;
+}
+
+.notesvault-outline-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.notesvault-outline-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notesvault-outline-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notesvault-outline-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 0;
+}
+
+/* ---------- Reader Preferences ---------- */
+
+.notesvault-reader--serif .notesvault-reader {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.notesvault-reader--sans .notesvault-reader {
+  font-family: var(--font-sans);
+}
+
+.notesvault-reader--small .notesvault-reader {
+  font-size: 0.8125rem;
+}
+
+.notesvault-reader--default .notesvault-reader {
+  font-size: 0.875rem;
+}
+
+.notesvault-reader--large .notesvault-reader {
+  font-size: 1rem;
+}
+
+.notesvault-reader--compact .notesvault-reader {
+  line-height: 1.6;
+}
+
+.notesvault-reader--normal .notesvault-reader {
+  line-height: 1.8;
+}
+
+.notesvault-reader--relaxed .notesvault-reader {
+  line-height: 2;
+}
+
+.notesvault-reader--serif .notesvault-reader h1,
+.notesvault-reader--serif .notesvault-reader h2,
+.notesvault-reader--serif .notesvault-reader h3 {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.notesvault-reader--sans .notesvault-reader h1,
+.notesvault-reader--sans .notesvault-reader h2,
+.notesvault-reader--sans .notesvault-reader h3 {
+  font-family: var(--font-sans);
+}
+
+/* ---------- Reader Shell ---------- */
+
+.notesvault-reader-shell {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  animation: notesvault-reader-enter var(--motion-standard)
+    var(--motion-ease-standard);
+}
+
+@keyframes notesvault-reader-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notesvault-reader-shell {
+    animation: none;
+  }
+}
+
+@media print {
+  body {
+    background: #ffffff;
+    color: #171412;
+  }
+
+  .notesvault-reader-shell {
+    border: 0;
+    box-shadow: none;
+  }
+
+  .notesvault-reader-shell > header,
+  .notesvault-reader-shell > footer {
+    display: none;
+  }
+
+  .notesvault-reader-shell section {
+    break-inside: avoid;
+  }
+
+  .notesvault-reader {
+    max-width: none;
+    color: #171412;
+  }
+
+  .notesvault-reader a {
+    color: #171412;
+    text-decoration: underline;
+  }
+}
+
+/* ---------- Focus Header Control ---------- */
+
+.focus-header-control {
+  display: flex;
+  height: 1.75rem;
+  width: 3.25rem;
+  align-items: center;
+  justify-content: center;
+
+  transform: translateX(-50%) translateY(0);
+
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+
+  background: color-mix(
+    in srgb,
+    var(--surface-elevated) 94%,
+    transparent
+  );
+
+  color: var(--muted-foreground);
+
+  box-shadow:
+    0 5px 18px rgb(0 0 0 / 0.06),
+    0 1px 2px rgb(0 0 0 / 0.05);
+
+  backdrop-filter: blur(10px);
+
+  transition:
+    transform var(--motion-standard) var(--motion-ease-soft),
+    background-color var(--motion-standard)
+      var(--motion-ease-standard),
+    color var(--motion-standard) var(--motion-ease-standard),
+    box-shadow var(--motion-standard) var(--motion-ease-soft);
+
+  will-change: transform;
+}
+
+.focus-header-control:hover,
+.focus-header-control:focus-visible {
+  transform: translateX(-50%) translateY(2px) scale(1.04);
+  background: var(--secondary);
+  color: var(--foreground);
+
+  box-shadow:
+    0 8px 22px rgb(0 0 0 / 0.09),
+    0 2px 4px rgb(0 0 0 / 0.06);
+}
+
+.focus-header-control:active {
+  transform: translateX(-50%) translateY(3px) scale(0.97);
+}
+
+.focus-header-control__icon {
+  transform: rotate(0deg);
+  transition:
+    transform var(--motion-slow) var(--motion-ease-soft),
+    color var(--motion-standard) var(--motion-ease-standard);
+}
+
+.focus-header-control__icon--expanded {
+  transform: rotate(180deg);
+}
+
+.focus-header-control--attention {
+  animation: focus-header-premium-attention 3.6s
+    var(--motion-ease-soft) infinite;
+}
+
+.focus-header-control--attention:hover,
+.focus-header-control--attention:focus-visible {
+  animation-play-state: paused;
+}
+
+@keyframes focus-header-premium-attention {
+  0%,
+  68%,
+  100% {
+    box-shadow:
+      0 5px 18px rgb(0 0 0 / 0.06),
+      0 1px 2px rgb(0 0 0 / 0.05);
+  }
+
+  78% {
+    box-shadow:
+      0 7px 24px rgb(0 0 0 / 0.09),
+      0 0 0 3px color-mix(in srgb, var(--primary) 8%, transparent);
+  }
+
+  88% {
+    box-shadow:
+      0 5px 18px rgb(0 0 0 / 0.06),
+      0 1px 2px rgb(0 0 0 / 0.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus-header-control,
+  .focus-header-control__icon {
+    transition: none;
+  }
+
+  .focus-header-control--attention {
+    animation: none;
+  }
+}
+
+/* ---------- Shell Motion ---------- */
+
+.notesvault-shell-nav-icon {
+  transition:
+    color var(--motion-standard) var(--motion-ease-standard),
+    transform var(--motion-standard) var(--motion-ease-soft);
+}
+
+.notesvault-shell-nav-item:hover .notesvault-shell-nav-icon,
+.notesvault-shell-nav-item:focus-visible .notesvault-shell-nav-icon {
+  transform: translateX(2px);
+}
+
+.notesvault-profile-menu {
+  transform-origin: top right;
+  animation: notesvault-profile-menu-enter var(--motion-standard)
+    var(--motion-ease-soft);
+}
+
+@keyframes notesvault-profile-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Overlay Motion ---------- */
+
+.notesvault-overlay-backdrop {
+  animation: notesvault-overlay-backdrop-enter var(--motion-fast)
+    var(--motion-ease-standard);
+}
+
+.notesvault-overlay-panel {
+  animation: notesvault-overlay-panel-enter var(--motion-standard)
+    var(--motion-ease-soft);
+}
+
+.notesvault-overlay-popover {
+  transform-origin: top right;
+  animation: notesvault-overlay-popover-enter var(--motion-standard)
+    var(--motion-ease-soft);
+}
+
+@keyframes notesvault-overlay-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes notesvault-overlay-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes notesvault-overlay-popover-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Professional Editor Tables ---------- */
+
+.notesvault-editor .tableWrapper {
+  position: relative;
+  margin: 1.25rem 0;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  background: var(--card);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.notesvault-editor .tableWrapper::-webkit-scrollbar {
+  height: 4px;
+}
+
+.notesvault-editor .tableWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notesvault-editor .tableWrapper::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 0;
+}
+
+.notesvault-editor table {
+  width: 100%;
+  min-width: 38rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  color: var(--editor-foreground);
+}
+
+.notesvault-image-action {
+  display: inline-flex;
+  width: 1.7rem;
+  height: 1.7rem;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--muted-foreground);
+  transition:
+    background-color var(--motion-fast) var(--motion-ease-standard),
+    color var(--motion-fast) var(--motion-ease-standard);
+}
+
+.notesvault-editor tr:last-child td {
+  border-bottom: 0;
+}
+
+.notesvault-editor th:last-child,
+.notesvault-editor td:last-child {
+  border-right: 0;
+}
+
+.notesvault-editor th {
+  background: var(--surface-subtle);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.025em;
+}
+
+.notesvault-editor td {
+  background: var(--card);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+}
+
+.notesvault-editor tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--surface-subtle) 52%, var(--card));
+}
+
+.notesvault-editor tbody tr:hover td {
+  background: color-mix(in srgb, var(--secondary) 65%, var(--card));
+}
+
+.notesvault-editor th p,
+.notesvault-editor td p {
+  margin: 0;
+  color: inherit;
+}
+
+.notesvault-editor th > *:first-child,
+.notesvault-editor td > *:first-child {
+  margin-top: 0;
+}
+
+.notesvault-editor th > *:last-child,
+.notesvault-editor td > *:last-child {
+  margin-bottom: 0;
+}
+
+.notesvault-editor .selectedCell {
+  z-index: 1;
+}
+
+.notesvault-editor .selectedCell::after {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border: 1px solid var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--primary) 28%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.notesvault-editor .column-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -2px;
+  bottom: -1px;
+  z-index: 4;
+  width: 4px;
+  background: var(--primary);
+  pointer-events: none;
+}
+
+.notesvault-editor.resize-cursor,
+.notesvault-editor.resize-cursor * {
+  cursor: col-resize;
+}
+
+/* ---------- Reader Tables ---------- */
+
+.notesvault-reader .tableWrapper {
+  margin: 1.75rem 0;
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.notesvault-reader table {
+  min-width: 34rem;
+}
+
+.notesvault-reader th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-subtle);
+  color: var(--foreground);
+}
+
+.notesvault-reader td {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.notesvault-reader tbody tr:hover td {
+  background: inherit;
+}
+
+.notesvault-reader .selectedCell::after,
+.notesvault-reader .column-resize-handle {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .notesvault-editor .tableWrapper {
+    margin-inline: -0.25rem;
+  }
+
+  .notesvault-editor table {
+    min-width: 34rem;
+  }
+
+  .notesvault-editor th,
+  .notesvault-editor td {
+    min-width: 7rem;
+    padding: 0.55rem 0.65rem;
+  }
+
+  .notesvault-reader table {
+    min-width: 30rem;
+  }
+}
+
+@media print {
+  .notesvault-reader .tableWrapper {
+    overflow: visible;
+    border: 1px solid #d7d3d0;
+  }
+
+  .notesvault-reader table {
+    min-width: 0;
+    table-layout: auto;
+  }
+
+  .notesvault-reader th,
+  .notesvault-reader td {
+    border-color: #d7d3d0;
+    color: #171412;
+    break-inside: avoid;
+  }
+
+  .notesvault-reader th {
+    position: static;
+    background: #f5f2ef;
+  }
+}
+
+/* ---------- Professional Image Node ---------- */
+
+.notesvault-image-node {
+  display: flex;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.notesvault-image-node[data-align="left"] {
+  justify-content: flex-start;
+}
+
+.notesvault-image-node[data-align="center"] {
+  justify-content: center;
+}
+
+.notesvault-image-node[data-align="right"] {
+  justify-content: flex-end;
+}
+
+.notesvault-image-figure {
+  max-width: 100%;
+  margin: 0;
+  transition: width var(--motion-standard) var(--motion-ease-standard);
+}
+
+.notesvault-image-node.is-selected .notesvault-image-figure {
+  outline: 1px solid var(--editor-focus-border);
+  box-shadow: 0 0 0 3px var(--editor-focus-shadow);
+}
+
+.notesvault-image-toolbar {
+  display: flex;
+  min-height: 2.2rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  background: var(--surface-subtle);
+  padding: 0.3rem 0.4rem 0.3rem 0.65rem;
+}
+
+.notesvault-image-toolbar-label {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+.notesvault-image-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.notesvault-image-action {
+  display: inline-flex;
+  width: 1.7rem;
+  height: 1.7rem;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--muted-foreground);
+ transition:
+  background-color var(--motion-fast) var(--motion-ease-standard),
+  color var(--motion-fast) var(--motion-ease-standard);
+}
+
+.notesvault-image-action:hover,
+.notesvault-image-action[aria-pressed="true"] {
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+.notesvault-image-action--danger:hover {
+  background: var(--danger-subtle);
+  color: var(--danger);
+}
+
+.notesvault-image-element {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  object-fit: contain;
+}
+
+.notesvault-image-controls {
+  border: 1px solid var(--border);
+  border-top: 0;
+  background: var(--surface-subtle);
+  padding: 0.5rem;
+}
+
+.notesvault-image-widths {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.notesvault-image-width {
+  min-height: 1.6rem;
+  border: 1px solid var(--border);
+  background: var(--background);
+  padding: 0 0.45rem;
+  color: var(--muted-foreground);
+  font-size: 0.5625rem;
+  font-weight: 600;
+}
+
+.notesvault-image-width:hover,
+.notesvault-image-width[aria-pressed="true"] {
+  border-color: var(--border-strong);
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+.notesvault-image-caption-input {
+  width: 100%;
+  margin-top: 0.45rem;
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: transparent;
+  padding: 0.5rem 0 0.1rem;
+  color: var(--editor-foreground);
+  font-size: 0.6875rem;
+  text-align: center;
+  outline: none;
+}
+
+.notesvault-image-caption-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.notesvault-image-caption {
+  margin-top: 0.55rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-reading);
+  font-size: 0.6875rem;
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.notesvault-reader .notesvault-image-node {
+  margin: 2rem 0;
+}
+
+.notesvault-reader .notesvault-image-element {
+  box-shadow: var(--card-shadow);
+}
+
+@media (max-width: 639px) {
+  .notesvault-image-figure {
+    width: 100% !important;
+  }
+
+  .notesvault-image-toolbar {
+    align-items: flex-start;
+  }
+
+  .notesvault-image-toolbar-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media print {
+  .notesvault-image-toolbar,
+  .notesvault-image-controls {
+    display: none;
+  }
+
+  .notesvault-image-figure {
+    width: 100% !important;
+    break-inside: avoid;
+  }
+
+  .notesvault-image-element {
+    border: 0;
+    box-shadow: none;
+  }
+}
+
+/* ---------- Image Resize and Preview ---------- */
+
+.notesvault-image-preview-trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: transparent;
+  text-align: inherit;
+}
+
+.notesvault-image-preview-trigger:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.notesvault-image-preview-indicator {
+  position: absolute;
+  right: 0.55rem;
+  bottom: 0.55rem;
+  display: inline-flex;
+  width: 1.8rem;
+  height: 1.8rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  background: rgb(10 10 10 / 0.72);
+  color: #ffffff;
+  opacity: 0;
+  backdrop-filter: blur(6px);
+  transition: opacity var(--motion-fast) var(--motion-ease-standard);
+}
+
+.notesvault-image-preview-trigger:hover .notesvault-image-preview-indicator,
+.notesvault-image-preview-trigger:focus-visible
+  .notesvault-image-preview-indicator {
+  opacity: 1;
+}
+
+.notesvault-image-preview-close {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  z-index: 2;
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(10 10 10 / 0.78);
+  color: #ffffff;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease-standard),
+    transform var(--motion-fast) var(--motion-ease-soft);
+}
+
+.notesvault-image-figure {
+  position: relative;
+}
+
+.notesvault-image-node.is-selected .notesvault-image-resize-handle,
+.notesvault-image-figure:hover .notesvault-image-resize-handle {
+  opacity: 1;
+}
+
+.notesvault-image-is-resizing,
+.notesvault-image-is-resizing * {
+  cursor: nwse-resize !important;
+  user-select: none !important;
+}
+
+.notesvault-image-current-width {
+  display: inline-flex;
+  min-height: 1.6rem;
+  align-items: center;
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-size: 0.5625rem;
+  font-weight: 600;
+}
+
+.notesvault-image-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* ---------- Full-Screen Image Preview ---------- */
+
+.notesvault-image-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.notesvault-image-preview-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(3 7 18 / 0.86);
+  cursor: zoom-out;
+  backdrop-filter: blur(10px);
+}
+
+.notesvault-image-preview-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(92vw, 88rem);
+  max-height: 90vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: notesvault-image-preview-enter var(--motion-standard)
+    var(--motion-ease-standard);
+}
+
+.notesvault-image-preview-close {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  z-index: 2;
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(10 10 10 / 0.78);
+  color: #ffffff;
+  transition:
+  background-color var(--motion-fast) var(--motion-ease-standard),
+  transform var(--motion-fast) var(--motion-ease-soft);
+}
+
+.notesvault-image-element {
+  min-height: 4rem;
+  transition:
+    opacity var(--motion-standard) var(--motion-ease-standard),
+    filter var(--motion-standard) var(--motion-ease-standard);
+}
+
+.notesvault-image-preview-element {
+  display: block;
+  max-width: 100%;
+  max-height: calc(90vh - 4rem);
+  object-fit: contain;
+  box-shadow: 0 28px 80px rgb(0 0 0 / 0.46);
+}
+
+.notesvault-image-preview-caption {
+  max-width: 46rem;
+  margin: 0.85rem auto 0;
+  color: rgb(255 255 255 / 0.76);
+  font-family: var(--font-reading);
+  font-size: 0.75rem;
+  font-style: italic;
+  line-height: 1.6;
+  text-align: center;
+}
+
+@keyframes notesvault-image-preview-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.975) translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (max-width: 639px) {
+  .notesvault-image-preview {
+    padding: 1rem;
+  }
+
+  .notesvault-image-preview-content {
+    width: 100%;
+  }
+
+  .notesvault-image-preview-close {
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .notesvault-image-resize-handle {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notesvault-image-preview-content {
+    animation: none;
+  }
+}
+
+@media print {
+  .notesvault-image-preview,
+  .notesvault-image-resize-handle,
+  .notesvault-image-preview-indicator {
+    display: none;
+  }
+}
+
+/* ---------- Image Drag and Drop ---------- */
+
+.notesvault-image-drop-overlay {
+  position: absolute;
+  inset: 2.75rem 0 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--primary);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--primary);
+  pointer-events: none;
+  backdrop-filter: blur(3px);
+}
+
+.notesvault-image-drop-content {
+  display: inline-flex;
+  min-height: 4rem;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
+  padding: 0 1rem;
+  box-shadow: var(--dropdown-shadow);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .notesvault-image-drop-content {
+    animation: notesvault-image-drop-enter var(--motion-fast)
+      var(--motion-ease-standard);
+  }
+
+  @keyframes notesvault-image-drop-enter {
+    from {
+      opacity: 0;
+      transform: translateY(3px) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+/* ---------- Image Upload and Fallback ---------- */
+
+.notesvault-image-element {
+  min-height: 4rem;
+  transition:
+  opacity var(--motion-standard) var(--motion-ease-standard),
+  filter var(--motion-standard) var(--motion-ease-standard);
+}
+
+.notesvault-image-element--loading {
+  opacity: 0.45;
+  filter: blur(2px);
+}
+
+.notesvault-image-alt-input,
+.notesvault-image-caption-input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--editor-foreground);
+  font-size: 0.6875rem;
+  outline: none;
+}
+
+.notesvault-image-alt-input {
+  margin-top: 0.45rem;
+  border-top: 1px solid var(--border);
+  padding: 0.5rem 0 0.1rem;
+}
+
+.notesvault-image-caption-input {
+  margin-top: 0.35rem;
+  padding: 0.35rem 0 0.1rem;
+  text-align: center;
+}
+
+.notesvault-image-alt-input::placeholder,
+.notesvault-image-caption-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.notesvault-image-error {
+  display: flex;
+  min-height: 8rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 1px solid var(--danger);
+  background: var(--danger-subtle);
+  padding: 1rem;
+  color: var(--danger);
+}
+
+.notesvault-image-url-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.notesvault-image-url-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(3 7 18 / 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.notesvault-image-url-panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 28rem);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--popover);
+  box-shadow: var(--dialog-shadow);
+  animation:
+  notesvault-image-url-enter
+  var(--motion-standard)
+  var(--motion-ease-standard);
+}
+
+@keyframes notesvault-image-url-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notesvault-image-url-panel {
+    animation: none;
+  }
+}
+
+/* ---------- Editor Keyboard Shortcuts ---------- */
+
+.notesvault-shortcuts-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.notesvault-shortcuts-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(3 7 18 / 0.56);
+  backdrop-filter: blur(4px);
+}
+
+.notesvault-shortcuts-panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 40rem);
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--dialog-shadow);
+  animation: notesvault-shortcuts-enter var(--motion-standard)
+    var(--motion-ease-standard);
+}
+
+.notesvault-shortcuts-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.notesvault-shortcuts-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notesvault-shortcuts-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notesvault-shortcuts-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+}
+
+@keyframes notesvault-shortcuts-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 639px) {
+  .notesvault-shortcuts-dialog {
+    align-items: flex-end;
+    padding: 0.75rem;
+  }
+
+  .notesvault-shortcuts-panel {
+    width: 100%;
+    max-height: 85vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notesvault-shortcuts-panel {
+    animation: none;
+  }
+}
+
+/* ---------- Editor Search ---------- */
+
+.notesvault-search-match {
+  background: rgb(250 204 21 / 0.26);
+  color: inherit;
+  box-shadow: inset 0 -1px 0 rgb(202 138 4 / 0.5);
+}
+
+.notesvault-search-match-active {
+  background: rgb(249 115 22 / 0.34);
+  color: inherit;
+  box-shadow:
+    inset 0 -2px 0 rgb(234 88 12 / 0.78),
+    0 0 0 1px rgb(234 88 12 / 0.24);
+}
+
+.dark .notesvault-search-match {
+  background: rgb(250 204 21 / 0.2);
+  box-shadow: inset 0 -1px 0 rgb(250 204 21 / 0.42);
+}
+
+.dark .notesvault-search-match-active {
+  background: rgb(251 146 60 / 0.3);
+  box-shadow:
+    inset 0 -2px 0 rgb(251 146 60 / 0.74),
+    0 0 0 1px rgb(251 146 60 / 0.22);
+}
+
+/* ---------- Editor Search Panel ---------- */
+
+.notesvault-search-panel {
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-elevated);
+  padding: 0.5rem;
+  box-shadow: 0 5px 14px rgb(0 0 0 / 0.05);
+  animation: notesvault-search-panel-enter var(--motion-fast)
+    var(--motion-ease-standard);
+}
+
+.notesvault-search-main-row,
+.notesvault-search-replace-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.notesvault-search-replace-row {
+  margin-top: 0.4rem;
+  padding-left: 0.1rem;
+}
+
+.notesvault-search-field {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+}
+
+.notesvault-search-field-icon {
+  position: absolute;
+  left: 0.65rem;
+  width: 0.8rem;
+  height: 0.8rem;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.notesvault-search-option,
+.notesvault-search-action {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-weight: 600;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease-standard),
+    color var(--motion-fast) var(--motion-ease-standard);
+}
+
+.notesvault-search-input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.notesvault-search-input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 18%, transparent);
+}
+
+.notesvault-search-clear {
+  position: absolute;
+  right: 0.4rem;
+  display: inline-flex;
+  width: 1.35rem;
+  height: 1.35rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+}
+
+.notesvault-search-clear:hover {
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+.notesvault-search-counter {
+  display: inline-flex;
+  min-width: 3.2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  background: var(--surface-subtle);
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.notesvault-search-options,
+.notesvault-search-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.notesvault-search-option,
+.notesvault-search-action {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-weight: 600;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease-standard),
+    color var(--motion-fast) var(--motion-ease-standard);
+}
+
+.notesvault-search-option:hover,
+.notesvault-search-action:hover {
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+.notesvault-search-option.is-active {
+  background: var(--secondary);
+  color: var(--primary);
+  box-shadow: inset 0 -2px 0 var(--primary);
+}
+
+.notesvault-search-action:disabled,
+.notesvault-search-text-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.notesvault-search-text-action {
+  height: 2rem;
+  border: 1px solid var(--border);
+  background: var(--background);
+  padding: 0 0.65rem;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease-standard),
+    color var(--motion-fast) var(--motion-ease-standard);
+}
+
+.notesvault-search-text-action:hover:not(:disabled) {
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+@keyframes notesvault-search-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .notesvault-search-main-row {
+    flex-wrap: wrap;
+  }
+
+  .notesvault-search-field {
+    flex-basis: calc(100% - 3.6rem);
+  }
+
+  .notesvault-search-options {
+    order: 3;
+  }
+
+  .notesvault-search-actions {
+    margin-left: auto;
+    order: 4;
+  }
+
+  .notesvault-search-replace-row {
+    flex-wrap: wrap;
+  }
+
+  .notesvault-search-replace-row .notesvault-search-field {
+    flex-basis: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notesvault-search-panel {
+    animation: none;
+  }
+}
+
+/* ---------- Editor Command Palette ---------- */
+
+.notesvault-command-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 230;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: min(14vh, 7rem) 1rem 1rem;
+}
+
+.notesvault-command-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(3 7 18 / 0.58);
+  backdrop-filter: blur(5px);
+}
+
+.notesvault-command-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(100%, 39rem);
+  max-height: min(72vh, 38rem);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--dialog-shadow);
+  animation: notesvault-command-enter var(--motion-standard)
+    var(--motion-ease-standard);
+}
+
+.notesvault-command-header {
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-subtle);
+  padding: 0.7rem 0.85rem;
+}
+
+.notesvault-command-close {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  color: var(--muted-foreground);
+}
+
+.notesvault-command-close:hover {
+  background: var(--secondary);
+  color: var(--foreground);
+}
+
+.notesvault-command-search {
+  position: relative;
+  display: block;
+  border-bottom: 1px solid var(--border);
+  padding: 0.7rem;
+}
+
+.notesvault-command-search-input {
+  width: 100%;
+  height: 2.5rem;
+  border: 1px solid var(--input);
+  background: var(--background);
+  padding: 0 0.8rem 0 2.25rem;
+  color: var(--foreground);
+  font-size: 0.75rem;
+  outline: none;
+}
+
+.notesvault-command-search-input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 18%, transparent);
+}
+
+.notesvault-command-results {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.7rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+.notesvault-command-results::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notesvault-command-results::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notesvault-command-results::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+}
+
+.notesvault-command-group-title {
+  margin-bottom: 0.4rem;
+  padding: 0 0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.notesvault-command-item {
+  display: flex;
+  width: 100%;
+  min-height: 3.25rem;
+  align-items: center;
+  gap: 0.7rem;
+  border-top: 1px solid var(--border);
+  background: var(--background);
+  padding: 0.55rem 0.65rem;
+  color: var(--foreground);
+}
+
+.notesvault-command-item:first-child {
+  border-top: 0;
+}
+
+.notesvault-command-item:hover,
+.notesvault-command-item[aria-selected="true"] {
+  background: var(--secondary);
+}
+
+.notesvault-command-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.notesvault-command-item-icon {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  background: var(--surface-subtle);
+  color: var(--muted-foreground);
+}
+
+.notesvault-command-item[aria-selected="true"] .notesvault-command-item-icon {
+  border-color: var(--border-strong);
+  color: var(--primary);
+}
+
+.notesvault-command-footer {
+  display: flex;
+  min-height: 2.4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface-subtle);
+  padding: 0.5rem 0.85rem;
+  color: var(--muted-foreground);
+  font-size: 0.5625rem;
+}
+
+@keyframes notesvault-command-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 639px) {
+  .notesvault-command-dialog {
+    align-items: flex-end;
+    padding: 0.75rem;
+  }
+
+  .notesvault-command-panel {
+    width: 100%;
+    max-height: 84vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notesvault-command-panel {
+    animation: none;
+  }
+}
+
+/* ---------- Notes Grid Separators ---------- */
+
+.notes-grid-cell {
+  position: relative;
+  min-width: 0;
+  padding: 0.625rem;
+}
+
+.notes-grid-cell::before,
+.notes-grid-cell::after {
+  position: absolute;
+  z-index: 0;
+  background: color-mix(in srgb, var(--foreground) 7.5%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.notes-grid-cell::before {
+  right: 0.625rem;
+  bottom: 0;
+  left: 0.625rem;
+  height: 1px;
+}
+
+.notes-grid-cell::after {
+  top: 0.625rem;
+  right: 0;
+  bottom: 0.625rem;
+  width: 1px;
+}
+
+/* One-column layout */
+
+.notes-grid-cell:last-child::before,
+.notes-grid-cell::after {
+  display: none;
+}
+
+/* Two-column layout */
+
+@media (min-width: 640px) {
+  .notes-grid-cell::after {
+    display: none;
+  }
+
+  .notes-grid-cell:nth-child(odd):not(:last-child)::after {
+    display: block;
+  }
+
+  .notes-grid-cell::before {
+    display: block;
+  }
+
+  .notes-grid-cell:nth-last-child(-n + 2)::before {
+    display: none;
+  }
+}
+
+/* Three-column layout */
+
+@media (min-width: 1280px) {
+  .notes-grid-cell::after {
+    display: none;
+  }
+
+  .notes-grid-cell:not(:nth-child(3n)):not(:last-child)::after {
+    display: block;
+  }
+
+  .notes-grid-cell::before {
+    display: block;
+  }
+
+  .notes-grid-cell:nth-last-child(-n + 3)::before {
+    display: none;
+  }
+}
+
+/* Four-column layout */
+
+@media (min-width: 1536px) {
+  .notes-grid-cell::after {
+    display: none;
+  }
+
+  .notes-grid-cell:not(:nth-child(4n)):not(:last-child)::after {
+    display: block;
+  }
+
+  .notes-grid-cell::before {
+    display: block;
+  }
+
+  .notes-grid-cell:nth-last-child(-n + 4)::before {
+    display: none;
+  }
+}
+
+/* ---------- Task Lists ---------- */
+
+.notesvault-editor ul[data-type="taskList"] {
+  margin: 0.75rem 0;
+  list-style: none;
+  padding-left: 0;
+  color: var(--editor-foreground);
+}
+
+.notesvault-editor ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0.35rem 0;
+  color: inherit;
+}
+
+.notesvault-editor ul[data-type="taskList"] li > label {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding-top: 0.3rem;
+  user-select: none;
+}
+
+.notesvault-editor ul[data-type="taskList"] li > label input {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0;
+  accent-color: var(--primary);
+}
+
+.notesvault-editor ul[data-type="taskList"] li > div {
+  min-width: 0;
+  flex: 1;
+  color: inherit;
+}
+
+.notesvault-editor ul[data-type="taskList"] li > div p {
+  color: inherit;
+}
+
+.notesvault-editor ul[data-type="taskList"] li[data-checked="true"] > div {
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+}
+
+.notesvault-editor ul[data-type="taskList"] ul[data-type="taskList"] {
+  margin-left: 1.5rem;
+}
+
+/* ---------- Lowlight Syntax Highlighting ---------- */
+
+.notesvault-editor .hljs-comment,
+.notesvault-editor .hljs-quote {
+  color: #8b949e;
+}
+
+.notesvault-editor .hljs-keyword,
+.notesvault-editor .hljs-selector-tag,
+.notesvault-editor .hljs-subst {
+  color: #ff7b72;
+}
+
+.notesvault-editor .hljs-string,
+.notesvault-editor .hljs-doctag,
+.notesvault-editor .hljs-regexp {
+  color: #a5d6ff;
+}
+
+.notesvault-editor .hljs-number,
+.notesvault-editor .hljs-literal,
+.notesvault-editor .hljs-variable,
+.notesvault-editor .hljs-template-variable {
+  color: #79c0ff;
+}
+
+.notesvault-editor .hljs-title,
+.notesvault-editor .hljs-section,
+.notesvault-editor .hljs-selector-id {
+  color: #d2a8ff;
+}
+
+.notesvault-editor .hljs-type,
+.notesvault-editor .hljs-class .hljs-title {
+  color: #ffa657;
+}
+
+.notesvault-editor .hljs-attribute,
+.notesvault-editor .hljs-name,
+.notesvault-editor .hljs-tag {
+  color: #7ee787;
+}
+
+.notesvault-editor .hljs-built_in,
+.notesvault-editor .hljs-builtin-name {
+  color: #ffa657;
+}
+
+.notesvault-editor .hljs-meta {
+  color: #79c0ff;
+}
+
+/* ---------- Editor Toolbar Scrollbar ---------- */
+
+.editor-toolbar-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.editor-toolbar-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Editor Bubble Menu ---------- */
+
+.notesvault-editor-bubble-menu {
+  max-width: calc(100vw - 2rem);
+}
+
+@media (max-width: 639px) {
+  .notesvault-editor-bubble-menu {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .notesvault-editor-bubble-menu::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ---------- Tippy ---------- */
+
+.tippy-box {
+  background: transparent;
+  color: inherit;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.tippy-content {
+  padding: 0;
+}
+
+.tippy-arrow {
+  display: none;
+}
+
+/* ---------- Slash Command Menu ---------- */
+
+.notesvault-slash-menu {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.notesvault-slash-menu::-webkit-scrollbar {
+  display: none;
+}
