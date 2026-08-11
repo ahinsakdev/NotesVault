@@ -8,6 +8,8 @@ import { AppError } from "./shared/errors/app-error.js";
 import { errorHandler } from "./shared/middleware/error-handler.js";
 import { notFoundHandler } from "./shared/middleware/not-found-handler.js";
 
+import cookieParser from "cookie-parser";
+
 export function createApp(): Express {
   const app = express();
 
@@ -17,6 +19,7 @@ export function createApp(): Express {
 
   app.use(
     cors({
+      credentials: true,
       origin(origin, callback) {
         if (!origin || origin === env.CLIENT_ORIGIN) {
           callback(null, true);
@@ -35,6 +38,7 @@ export function createApp(): Express {
   );
 
   app.use(express.json());
+  app.use(cookieParser());
 
   app.get("/health", (_request: Request, response: Response) => {
     response.status(200).json({

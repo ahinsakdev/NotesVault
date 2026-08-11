@@ -1,20 +1,37 @@
 import { ChevronDown } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { useAuthenticationSession } from "@/features/authentication/hooks/use-authentication-session";
+import {
+  getAuthenticatedUserInitials,
+  getAuthenticatedUserName,
+} from "@/features/authentication/utils/authenticated-user-display";
+
 import { ProfileMenu } from "./profile-menu";
 import type { ProfileMenuState } from "./profile-menu.types";
-
-const profileState: ProfileMenuState = {
-  status: "guest",
-  user: null,
-};
 
 export function ProfileMenuTrigger() {
   const [isOpen, setIsOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
+  const { data: session } = useAuthenticationSession();
+
+  const profileState: ProfileMenuState = session
+    ? {
+        status: "authenticated",
+        user: {
+          name: getAuthenticatedUserName(session.user),
+          email: session.user.email,
+          initials: getAuthenticatedUserInitials(session.user),
+        },
+      }
+    : {
+        status: "guest",
+        user: null,
+      };
+
   const initials =
-    profileState.status === "authenticated" ? profileState.user.initials : "AH";
+    profileState.status === "authenticated" ? profileState.user.initials : "NV";
 
   return (
     <div className="relative">

@@ -1,5 +1,7 @@
 import { Router } from "express";
 
+import { authRouter } from "../modules/auth/routes/auth.routes.js";
+
 export const apiRouter = Router();
 
 apiRouter.get("/health", (_request, response) => {
@@ -8,3 +10,5 @@ apiRouter.get("/health", (_request, response) => {
     service: "notesvault-api",
   });
 });
+
+apiRouter.use("/auth", authRouter);

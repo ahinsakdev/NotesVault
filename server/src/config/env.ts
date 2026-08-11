@@ -11,9 +11,13 @@ const environmentSchema = z.object({
 
   CLIENT_ORIGIN: z.url().default("http://localhost:5175"),
 
-  MONGODB_URI: z
+  JWT_SECRET: z
     .string()
-    .min(1, "MONGODB_URI is required"),
+    .min(32, "JWT_SECRET must contain at least 32 characters"),
+
+  AUTH_COOKIE_NAME: z.string().trim().min(1).default("notesvault_session"),
+
+  MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
 });
 
 const parsedEnvironment = environmentSchema.safeParse(process.env);

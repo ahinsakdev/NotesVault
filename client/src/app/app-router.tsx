@@ -5,6 +5,8 @@ import { ROUTES } from "@/app/routes";
 import { AppLayout } from "@/components/layout/app-layout";
 import { RouteLoadingFallback } from "@/components/ui/route-loading-fallback";
 import { AuthLayout } from "@/features/authentication/components/auth-layout";
+import { AuthenticatedRoute } from "@/features/authentication/components/route-guards/authenticated-route";
+import { GuestRoute } from "@/features/authentication/components/route-guards/guest-route";
 import { NoteEditorPageSkeleton } from "@/features/note-editor/components/note-editor-page-skeleton";
 
 import { NotFoundPage } from "./pages/not-found-page";
@@ -147,32 +149,34 @@ export function AppRouter() {
       <Route element={<Navigate replace to={ROUTES.dashboard} />} path="/" />
 
       <Route element={<AuthLayout />}>
-        <Route
-          element={
-            <RouteSuspense>
-              <LoginPage />
-            </RouteSuspense>
-          }
-          path="login"
-        />
+        <Route element={<GuestRoute />}>
+          <Route
+            element={
+              <RouteSuspense>
+                <LoginPage />
+              </RouteSuspense>
+            }
+            path="login"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <SignupPage />
-            </RouteSuspense>
-          }
-          path="signup"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <SignupPage />
+              </RouteSuspense>
+            }
+            path="signup"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <ForgotPasswordPage />
-            </RouteSuspense>
-          }
-          path="forgot-password"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <ForgotPasswordPage />
+              </RouteSuspense>
+            }
+            path="forgot-password"
+          />
+        </Route>
 
         <Route
           element={
@@ -202,134 +206,136 @@ export function AppRouter() {
         />
       </Route>
 
-      <Route element={<AppLayout />} path="app">
-        <Route element={<Navigate replace to="dashboard" />} index />
+      <Route element={<AuthenticatedRoute />}>
+        <Route element={<AppLayout />} path="app">
+          <Route element={<Navigate replace to="dashboard" />} index />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <DashboardPage />
-            </RouteSuspense>
-          }
-          path="dashboard"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <DashboardPage />
+              </RouteSuspense>
+            }
+            path="dashboard"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <NotesPage />
-            </RouteSuspense>
-          }
-          path="notes"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <NotesPage />
+              </RouteSuspense>
+            }
+            path="notes"
+          />
 
-        <Route
-          element={
-            <Suspense fallback={<NoteEditorPageSkeleton />}>
-              <NoteReadPage />
-            </Suspense>
-          }
-          path="notes/:noteId/read"
-        />
+          <Route
+            element={
+              <Suspense fallback={<NoteEditorPageSkeleton />}>
+                <NoteReadPage />
+              </Suspense>
+            }
+            path="notes/:noteId/read"
+          />
 
-        <Route
-          element={
-            <Suspense fallback={<NoteEditorPageSkeleton />}>
-              <NoteDetailsPage />
-            </Suspense>
-          }
-          path="notes/:noteId"
-        />
+          <Route
+            element={
+              <Suspense fallback={<NoteEditorPageSkeleton />}>
+                <NoteDetailsPage />
+              </Suspense>
+            }
+            path="notes/:noteId"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <RecentNotesPage />
-            </RouteSuspense>
-          }
-          path="recent"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <RecentNotesPage />
+              </RouteSuspense>
+            }
+            path="recent"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <FavoritesPage />
-            </RouteSuspense>
-          }
-          path="favorites"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <FavoritesPage />
+              </RouteSuspense>
+            }
+            path="favorites"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <PinnedNotesPage />
-            </RouteSuspense>
-          }
-          path="pinned"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <PinnedNotesPage />
+              </RouteSuspense>
+            }
+            path="pinned"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <FoldersPage />
-            </RouteSuspense>
-          }
-          path="folders"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <FoldersPage />
+              </RouteSuspense>
+            }
+            path="folders"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <FolderDetailsPage />
-            </RouteSuspense>
-          }
-          path="folders/:folderId"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <FolderDetailsPage />
+              </RouteSuspense>
+            }
+            path="folders/:folderId"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <TagsPage />
-            </RouteSuspense>
-          }
-          path="tags"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <TagsPage />
+              </RouteSuspense>
+            }
+            path="tags"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <TagDetailsPage />
-            </RouteSuspense>
-          }
-          path="tags/:tagId"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <TagDetailsPage />
+              </RouteSuspense>
+            }
+            path="tags/:tagId"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <SearchPage />
-            </RouteSuspense>
-          }
-          path="search"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <SearchPage />
+              </RouteSuspense>
+            }
+            path="search"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <TrashPage />
-            </RouteSuspense>
-          }
-          path="trash"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <TrashPage />
+              </RouteSuspense>
+            }
+            path="trash"
+          />
 
-        <Route
-          element={
-            <RouteSuspense>
-              <SettingsPage />
-            </RouteSuspense>
-          }
-          path="settings"
-        />
+          <Route
+            element={
+              <RouteSuspense>
+                <SettingsPage />
+              </RouteSuspense>
+            }
+            path="settings"
+          />
+        </Route>
       </Route>
 
       <Route element={<NotFoundPage />} path="*" />

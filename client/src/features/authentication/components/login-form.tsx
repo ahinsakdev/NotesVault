@@ -1,15 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 
 import { ROUTES } from "@/app/routes";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { useLogin } from "@/features/authentication/hooks/use-login";
 import {
   loginSchema,
   type LoginFormValues,
 } from "@/features/authentication/schemas/login.schema";
+import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/services/api/get-api-error";
 
 import { PasswordField } from "./password-field";
 
@@ -19,7 +22,20 @@ const defaultValues: LoginFormValues = {
   rememberMe: false,
 };
 
+type LoginLocationState = {
+  from?: {
+    hash?: string;
+    pathname?: string;
+    search?: string;
+  };
+};
+
 export function LoginForm() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const loginMutation = useLogin();
+
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -30,7 +46,33 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: LoginFormValues) {
-    await Promise.resolve(values);
+    try {
+      await loginMutation.mutateAsync(values);
+
+      const state = location.state as LoginLocationState | null;
+      const from = state?.from;
+
+      const destination = from?.pathname
+        ? `${from.pathname}${from.search ?? ""}${from.hash ?? ""}`
+        : ROUTES.dashboard;
+
+      navigate(destination, {
+        replace: true,
+      });
+
+      showToast({
+        title: "Signed in",
+        message: "Welcome back to NotesVault.",
+      });
+    } catch (error) {
+      showToast({
+        title: "Unable to sign in",
+        message: getApiErrorMessage(
+          error,
+          "We couldn't sign you in. Please try again.",
+        ),
+      });
+    }
   }
 
   return (

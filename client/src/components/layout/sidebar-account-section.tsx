@@ -2,6 +2,14 @@ import { LogOut, Settings } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 
 import { ROUTES } from "@/app/routes";
+import { useAuthenticationSession } from "@/features/authentication/hooks/use-authentication-session";
+import { useLogout } from "@/features/authentication/hooks/use-logout";
+import {
+  getAuthenticatedUserInitials,
+  getAuthenticatedUserName,
+} from "@/features/authentication/utils/authenticated-user-display";
+import { useToast } from "@/hooks/use-toast";
+import { getApiErrorMessage } from "@/services/api/get-api-error";
 import { cn } from "@/utils/cn";
 
 type SidebarAccountSectionProps = {
@@ -14,10 +22,41 @@ export function SidebarAccountSection({
   onNavigate,
 }: SidebarAccountSectionProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
-  function handleLogout() {
-    onNavigate?.();
-    navigate(ROUTES.login);
+  const { data: session } = useAuthenticationSession();
+  const logoutMutation = useLogout();
+
+  if (!session) {
+    return null;
+  }
+
+  const name = getAuthenticatedUserName(session.user);
+  const initials = getAuthenticatedUserInitials(session.user);
+
+  async function handleLogout() {
+    if (logoutMutation.isPending) {
+      return;
+    }
+
+    try {
+      await logoutMutation.mutateAsync();
+
+      onNavigate?.();
+
+      navigate(ROUTES.login, {
+        replace: true,
+      });
+    } catch (error) {
+      showToast({
+        title: "Unable to log out",
+        message: getApiErrorMessage(
+          error,
+          "We couldn't log you out. Please try again.",
+        ),
+        variant: "error",
+      });
+    }
   }
 
   if (isCollapsed) {
@@ -27,10 +66,10 @@ export function SidebarAccountSection({
           <button
             aria-label="Open profile"
             className="notesvault-focus-ring mb-1.5 flex size-8 items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground"
-            title="Ahinsak"
+            title={name}
             type="button"
           >
-            AH
+            {initials}
           </button>
 
           <NavLink
@@ -56,9 +95,10 @@ export function SidebarAccountSection({
 
           <button
             aria-label="Log out"
-            className="notesvault-focus-ring flex size-9 items-center justify-center text-muted-foreground transition-[background-color,color] duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-danger/10 hover:text-danger"
-            onClick={handleLogout}
-            title="Log out"
+            className="notesvault-focus-ring flex size-9 items-center justify-center text-muted-foreground transition-[background-color,color] duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-danger/10 hover:text-danger disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={logoutMutation.isPending}
+            onClick={() => void handleLogout()}
+            title={logoutMutation.isPending ? "Logging out" : "Log out"}
             type="button"
           >
             <LogOut aria-hidden="true" className="size-4" strokeWidth={1.8} />
@@ -75,16 +115,16 @@ export function SidebarAccountSection({
         type="button"
       >
         <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-[9px] font-semibold text-primary-foreground">
-          AH
+          {initials}
         </span>
 
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-semibold text-foreground">
-            Ahinsak
+            {name}
           </span>
 
           <span className="block truncate text-[9px] text-muted-foreground">
-            Premium Plan
+            {session.user.email}
           </span>
         </span>
       </button>
@@ -112,8 +152,9 @@ export function SidebarAccountSection({
         </NavLink>
 
         <button
-          className="notesvault-focus-ring flex min-h-9 w-full items-center gap-3 px-3 text-sm font-medium text-muted-foreground transition-[background-color,color] duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-danger/10 hover:text-danger"
-          onClick={handleLogout}
+          className="notesvault-focus-ring flex min-h-9 w-full items-center gap-3 px-3 text-sm font-medium text-muted-foreground transition-[background-color,color] duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-danger/10 hover:text-danger disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={logoutMutation.isPending}
+          onClick={() => void handleLogout()}
           type="button"
         >
           <LogOut
@@ -122,7 +163,7 @@ export function SidebarAccountSection({
             strokeWidth={1.8}
           />
 
-          <span>Log out</span>
+          <span>{logoutMutation.isPending ? "Logging out..." : "Log out"}</span>
         </button>
       </div>
     </div>

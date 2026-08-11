@@ -8,7 +8,6 @@ export type AuthenticatedUser = {
 
 export type AuthenticationSession = {
   user: AuthenticatedUser;
-  accessToken: string;
 };
 
 export type LoginRequest = {

@@ -1,15 +1,21 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import { ROUTES } from "@/app/routes";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { useSignup } from "@/features/authentication/hooks/use-signup";
 import {
   signupSchema,
   type SignupFormValues,
 } from "@/features/authentication/schemas/signup.schema";
+import { useToast } from "@/hooks/use-toast";
+import {
+  getApiErrorCode,
+  getApiErrorMessage,
+} from "@/services/api/get-api-error";
 
 import { PasswordField } from "./password-field";
 
@@ -23,17 +29,60 @@ const defaultValues: SignupFormValues = {
 };
 
 export function SignupForm() {
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const signupMutation = useSignup();
+
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
     register,
+    setError,
   } = useForm<SignupFormValues>({
     defaultValues,
     resolver: zodResolver(signupSchema),
   });
 
   async function onSubmit(values: SignupFormValues) {
-    await Promise.resolve(values);
+    try {
+      await signupMutation.mutateAsync({
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        password: values.password,
+      });
+
+      navigate(ROUTES.dashboard, {
+        replace: true,
+      });
+
+      showToast({
+        title: "Account created",
+        message: "Welcome to NotesVault.",
+      });
+    } catch (error) {
+      if (getApiErrorCode(error) === "EMAIL_ALREADY_IN_USE") {
+        setError(
+          "email",
+          {
+            message: "An account with this email already exists.",
+          },
+          {
+            shouldFocus: true,
+          },
+        );
+
+        return;
+      }
+
+      showToast({
+        title: "Unable to create account",
+        message: getApiErrorMessage(
+          error,
+          "We couldn't create your account. Please try again.",
+        ),
+      });
+    }
   }
 
   return (
