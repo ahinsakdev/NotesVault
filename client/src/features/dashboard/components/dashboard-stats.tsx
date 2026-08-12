@@ -1,11 +1,20 @@
-import { dashboardStatistics } from "../data/dashboard.mock-data";
+import type { DashboardStatistic } from "../types/dashboard.types";
 import { DashboardStatCard } from "./dashboard-stat-card";
 
-export function DashboardStats() {
+type DashboardStatsProps = {
+  statistics: DashboardStatistic[];
+};
+
+export function DashboardStats({
+  statistics,
+}: DashboardStatsProps) {
   return (
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      {dashboardStatistics.map((statistic) => (
-        <DashboardStatCard key={statistic.id} statistic={statistic} />
+      {statistics.map((statistic) => (
+        <DashboardStatCard
+          key={statistic.id}
+          statistic={statistic}
+        />
       ))}
     </section>
   );

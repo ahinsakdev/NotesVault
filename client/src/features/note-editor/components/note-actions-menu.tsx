@@ -1,4 +1,6 @@
 import {
+  Archive,
+  ArchiveRestore,
   Copy,
   Download,
   MoreHorizontal,
@@ -13,8 +15,10 @@ import { useMenuKeyboardNavigation } from "@/hooks/use-menu-keyboard-navigation"
 import { cn } from "@/utils/cn";
 
 type NoteActionsMenuProps = {
+  isArchived: boolean;
   isFavorite: boolean;
   isPinned: boolean;
+  onArchiveChange: (value: boolean) => void;
   onDuplicate: () => void;
   onExport: () => void;
   onFavoriteChange: (value: boolean) => void;
@@ -24,8 +28,10 @@ type NoteActionsMenuProps = {
 };
 
 export function NoteActionsMenu({
+  isArchived,
   isFavorite,
   isPinned,
+  onArchiveChange,
   onDuplicate,
   onExport,
   onFavoriteChange,
@@ -96,6 +102,23 @@ export function NoteActionsMenu({
           >
             <Star aria-hidden="true" className="size-3.5" />
             {isFavorite ? "Remove from favorites" : "Add to favorites"}
+          </button>
+
+          <div aria-hidden="true" className="my-1 border-t border-border" />
+
+          <button
+            className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-xs transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary"
+            onClick={() => runAction(() => onArchiveChange(!isArchived))}
+            role="menuitem"
+            tabIndex={-1}
+            type="button"
+          >
+            {isArchived ? (
+              <ArchiveRestore aria-hidden="true" className="size-3.5" />
+            ) : (
+              <Archive aria-hidden="true" className="size-3.5" />
+            )}
+            {isArchived ? "Unarchive note" : "Archive note"}
           </button>
 
           <div aria-hidden="true" className="my-1 border-t border-border" />

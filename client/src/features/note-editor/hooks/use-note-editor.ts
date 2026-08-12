@@ -1,6 +1,11 @@
 import { useCallback, useRef, useState } from "react";
 import type { JSONContent } from "@tiptap/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
 
+import { ROUTES } from "@/app/routes";
+import { createNote, updateNote } from "@/features/notes/api/notes.api";
+import { notesQueryKeys } from "@/features/notes/hooks/use-notes";
 import type { Note } from "@/features/notes/types/note.types";
 import { useNotePreferences } from "@/features/settings/hooks/use-note-preferences";
 
@@ -19,6 +24,9 @@ type UseNoteEditorOptions = {
 };
 
 export function useNoteEditor({ isNewNote, note }: UseNoteEditorOptions) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const { preferences: notePreferences } = useNotePreferences();
 
   const [values, setValues] = useState<NoteEditorValues>(() =>
@@ -34,6 +42,7 @@ export function useNoteEditor({ isNewNote, note }: UseNoteEditorOptions) {
 
   const revisionRef = useRef(0);
   const saveRequestIdRef = useRef(0);
+  const persistedNoteIdRef = useRef<string | null>(note?.id ?? null);
 
   const [saveState, setSaveState] = useState<NoteEditorSaveState>("idle");
 
@@ -80,23 +89,46 @@ export function useNoteEditor({ isNewNote, note }: UseNoteEditorOptions) {
 
     setSaveState("saving");
 
-    await new Promise<void>((resolve) => {
-      window.setTimeout(resolve, 500);
-    });
+    try {
+      const persistedNoteId = persistedNoteIdRef.current;
 
-    // This snapshot becomes the payload for the backend notes API.
-    void valuesToSave;
+      const savedNote = persistedNoteId
+        ? await updateNote(persistedNoteId, valuesToSave)
+        : await createNote(valuesToSave);
 
-    if (saveRequestId !== saveRequestIdRef.current) {
-      return;
-    }
+      if (saveRequestId !== saveRequestIdRef.current) {
+        return;
+      }
 
-    if (revisionRef.current !== revisionAtSaveStart) {
+      persistedNoteIdRef.current = savedNote.id;
+
+      queryClient.setQueryData(notesQueryKeys.detail(savedNote.id), savedNote);
+
+      await queryClient.invalidateQueries({
+        queryKey: notesQueryKeys.all,
+      });
+
+      if (!persistedNoteId) {
+        navigate(ROUTES.noteDetails.replace(":noteId", savedNote.id), {
+          replace: true,
+        });
+      }
+
+      if (revisionRef.current !== revisionAtSaveStart) {
+        setSaveState("unsaved");
+        return;
+      }
+
+      setSaveState("saved");
+    } catch {
+      if (saveRequestId !== saveRequestIdRef.current) {
+        return;
+      }
+
       setSaveState("unsaved");
-      return;
-    }
 
-    setSaveState("saved");
+      throw new Error("Unable to save note");
+    }
   }
 
   return {

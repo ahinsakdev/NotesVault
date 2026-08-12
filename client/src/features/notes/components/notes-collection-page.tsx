@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 import type { Note } from "../types/note.types";
 import { useNotesFilters } from "../hooks/use-notes-filters";
+import type { NotesCollectionScope } from "../utils/note.utils";
 import { NotesErrorState } from "./notes-error-state";
 import { NotesGrid } from "./notes-grid";
 import { NotesHeader } from "./notes-header";
@@ -23,6 +24,7 @@ type NotesCollectionPageProps = {
   isLoading: boolean;
   notes: Note[];
   onRetry: () => void;
+  scope?: NotesCollectionScope;
   title: string;
 };
 
@@ -35,6 +37,7 @@ export function NotesCollectionPage({
   isLoading,
   notes,
   onRetry,
+  scope = "active",
   title,
 }: NotesCollectionPageProps) {
   const navigate = useNavigate();
@@ -50,7 +53,7 @@ export function NotesCollectionPage({
     setSort,
     setTag,
     setView,
-  } = useNotesFilters(notes);
+  } = useNotesFilters(notes, scope);
 
   function handleCreateNote() {
     navigate(ROUTES.noteDetails.replace(":noteId", "new"));

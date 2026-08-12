@@ -11,6 +11,7 @@ export type NoteEditorValues = {
   tags: string[];
   isPinned: boolean;
   isFavorite: boolean;
+  isArchived: boolean;
 };
 
 export type NoteEditorState = {

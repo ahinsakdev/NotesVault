@@ -4,6 +4,8 @@ import type {
   NotesFilters,
 } from "../types/note.types";
 
+export type NotesCollectionScope = "active" | "archived";
+
 export function getNotesFilterOptions(notes: Note[]): NotesFilterOptions {
   const folders = [...new Set(notes.map((note) => note.folderName))].sort(
     (first, second) => first.localeCompare(second),
@@ -22,11 +24,20 @@ export function getNotesFilterOptions(notes: Note[]): NotesFilterOptions {
 export function filterAndSortNotes(
   notes: Note[],
   filters: NotesFilters,
+  scope: NotesCollectionScope = "active",
 ): Note[] {
   const normalizedSearch = filters.search.trim().toLowerCase();
 
   const filteredNotes = notes.filter((note) => {
-    if (note.deletedAt || note.isArchived) {
+    if (note.deletedAt) {
+      return false;
+    }
+
+    if (scope === "active" && note.isArchived) {
+      return false;
+    }
+
+    if (scope === "archived" && !note.isArchived) {
       return false;
     }
 
@@ -40,7 +51,8 @@ export function filterAndSortNotes(
     const matchesFolder =
       filters.folder === "all" || note.folderName === filters.folder;
 
-    const matchesTag = filters.tag === "all" || note.tags.includes(filters.tag);
+    const matchesTag =
+      filters.tag === "all" || note.tags.includes(filters.tag);
 
     return matchesSearch && matchesFolder && matchesTag;
   });

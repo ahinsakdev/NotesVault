@@ -13,6 +13,7 @@ type NoteEditorMetadataProps = {
   onFolderChange: (value: string) => void;
   onPinnedChange: (value: boolean) => void;
   onFavoriteChange: (value: boolean) => void;
+  onTrash: () => void;
 };
 
 export function NoteEditorMetadata({
@@ -20,6 +21,7 @@ export function NoteEditorMetadata({
   onFavoriteChange,
   onFolderChange,
   onPinnedChange,
+  onTrash,
   values,
 }: NoteEditorMetadataProps) {
   return (
@@ -113,6 +115,7 @@ export function NoteEditorMetadata({
         <Button
           className="w-full"
           leftIcon={<Trash2 className="size-3.5" />}
+          onClick={onTrash}
           size="sm"
           variant="danger"
         >

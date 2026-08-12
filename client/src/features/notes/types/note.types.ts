@@ -1,3 +1,5 @@
+import type { JSONContent } from "@tiptap/react";
+
 export type NoteAccent = "purple" | "blue" | "green" | "orange" | "red";
 
 export type NotesViewMode = "grid" | "list";
@@ -13,6 +15,7 @@ export type NotesSortOption =
 export type Note = {
   id: string;
   title: string;
+  content: JSONContent;
   preview: string;
   folderId: string;
   folderName: string;

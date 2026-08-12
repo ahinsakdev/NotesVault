@@ -1,11 +1,17 @@
 import { ROUTES } from "@/app/routes";
 
-import { folders } from "../data/dashboard.mock-data";
+import type { DashboardFolder } from "../types/dashboard.types";
 import { DashboardEmptyState } from "./dashboard-empty-state";
 import { DashboardSectionHeader } from "./dashboard-section-header";
 import { FolderItem } from "./folder-item";
 
-export function FoldersOverview() {
+type FoldersOverviewProps = {
+  folders: DashboardFolder[];
+};
+
+export function FoldersOverview({
+  folders,
+}: FoldersOverviewProps) {
   return (
     <section>
       <DashboardSectionHeader

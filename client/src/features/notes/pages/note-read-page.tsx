@@ -1,17 +1,26 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Navigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
+
+import { FileQuestion } from "lucide-react";
 
 import { ROUTES } from "@/app/routes";
-import { useAppShell } from "@/components/layout/use-app-shell";
 
+import { EmptyState } from "@/components/ui/empty-state";
+
+import { useAppShell } from "@/components/layout/use-app-shell";
+import { RouteLoadingFallback } from "@/components/ui/route-loading-fallback";
+import { useToast } from "@/hooks/use-toast";
+
+import { NotesErrorState } from "../components/notes-error-state";
 import { NoteReadContent } from "../components/read-mode/note-read-content";
 import { NoteReadFooter } from "../components/read-mode/note-read-footer";
 import { NoteReadHeader } from "../components/read-mode/note-read-header";
 import { NoteReadHero } from "../components/read-mode/note-read-hero";
 import { NoteReadOutline } from "../components/read-mode/note-read-outline";
 import { NoteReaderPreferences } from "../components/read-mode/note-reader-preferences";
-import { notesMockData } from "../data/notes.mock-data";
 import { useActiveReadingHeading } from "../hooks/use-active-reading-heading";
+import { useNote } from "../hooks/use-note";
+import { useUpdateNoteState } from "../hooks/use-update-note-state";
 import { useReaderHeaderState } from "../hooks/use-reader-header-state";
 import { useReaderKeyboardShortcuts } from "../hooks/use-reader-keyboard-shortcuts";
 import { useReaderPreferences } from "../hooks/use-reader-preferences";
@@ -26,7 +35,12 @@ function NoteReadDocument({ note }: NoteReadDocumentProps) {
   const [isOutlineOpen, setIsOutlineOpen] = useState(false);
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   const preferencesTriggerRef = useRef<HTMLButtonElement | null>(null);
+
+  const { showToast } = useToast();
+  const updateNoteStateMutation = useUpdateNoteState();
 
   const { isCompact: isHeaderCompact } = useReaderHeaderState();
   const { enterFocusMode, exitFocusMode } = useAppShell();
@@ -78,17 +92,126 @@ function NoteReadDocument({ note }: NoteReadDocumentProps) {
     setIsOutlineOpen(false);
   }
 
+  async function handleArchiveChange() {
+    if (updateNoteStateMutation.isPending) {
+      return;
+    }
+
+    const nextArchivedState = !note.isArchived;
+
+    try {
+      await updateNoteStateMutation.mutateAsync({
+        noteId: note.id,
+        updates: {
+          isArchived: nextArchivedState,
+        },
+      });
+
+      showToast({
+        title: nextArchivedState ? "Note archived" : "Note unarchived",
+        message: nextArchivedState
+          ? "The note was moved to Archived."
+          : "The note was returned to your active notes.",
+        variant: "success",
+      });
+
+      navigate(
+        nextArchivedState ? ROUTES.archived : ROUTES.notes,
+        {
+          replace: true,
+        },
+      );
+    } catch {
+      showToast({
+        title: "Unable to update note",
+        message: "The note could not be updated. Please try again.",
+        variant: "error",
+      });
+    }
+  }
+
+  async function handlePinnedChange() {
+    if (updateNoteStateMutation.isPending) {
+      return;
+    }
+
+    try {
+      await updateNoteStateMutation.mutateAsync({
+        noteId: note.id,
+        updates: {
+          isPinned: !note.isPinned,
+        },
+      });
+
+      showToast({
+        title: note.isPinned ? "Note unpinned" : "Note pinned",
+        message: note.isPinned
+          ? "The note was removed from your pinned notes."
+          : "The note was added to your pinned notes.",
+        variant: "success",
+      });
+    } catch {
+      showToast({
+        title: "Unable to update note",
+        message: "The note could not be updated. Please try again.",
+        variant: "error",
+      });
+    }
+  }
+
+  async function handleFavoriteChange() {
+    if (updateNoteStateMutation.isPending) {
+      return;
+    }
+
+    try {
+      await updateNoteStateMutation.mutateAsync({
+        noteId: note.id,
+        updates: {
+          isFavorite: !note.isFavorite,
+        },
+      });
+
+      showToast({
+        title: note.isFavorite
+          ? "Removed from favorites"
+          : "Added to favorites",
+        message: note.isFavorite
+          ? "The note was removed from your favorites."
+          : "The note was added to your favorites.",
+        variant: "success",
+      });
+    } catch {
+      showToast({
+        title: "Unable to update note",
+        message: "The note could not be updated. Please try again.",
+        variant: "error",
+      });
+    }
+  }
+
   return (
     <>
       <section className="relative min-h-full pb-16" data-reader-document>
         <NoteReadHeader
+          isArchived={note.isArchived}
           isCompact={isHeaderCompact}
           isFavorite={note.isFavorite}
           isPinned={note.isPinned}
           isPreferencesOpen={isPreferencesOpen}
           noteId={note.id}
           noteTitle={note.title}
+          onArchiveChange={() => {
+            void handleArchiveChange();
+          }}
+          onFavoriteChange={() => {
+            void handleFavoriteChange();
+          }}
           onOpenPreferences={() => setIsPreferencesOpen(true)}
+          onPinnedChange={() => {
+            void handlePinnedChange();
+          }}
+          isStateUpdating={updateNoteStateMutation.isPending}
           preferencesTriggerRef={preferencesTriggerRef}
         />
 
@@ -98,7 +221,7 @@ function NoteReadDocument({ note }: NoteReadDocumentProps) {
           wordCount={wordCount}
         />
 
-        <NoteReadContent content={note.preview} preferences={preferences} />
+        <NoteReadContent content={note.content} preferences={preferences} />
 
         <NoteReadFooter
           headingCount={outline.length}
@@ -134,10 +257,30 @@ function NoteReadDocument({ note }: NoteReadDocumentProps) {
 export function NoteReadPage() {
   const { noteId } = useParams();
 
-  const note = notesMockData.find((currentNote) => currentNote.id === noteId);
+  const { data: note, isError, isLoading, refetch } = useNote(noteId ?? null);
+
+  if (isLoading) {
+    return <RouteLoadingFallback />;
+  }
+
+  if (isError) {
+    return (
+      <NotesErrorState
+        onRetry={() => {
+          void refetch();
+        }}
+      />
+    );
+  }
 
   if (!note) {
-    return <Navigate replace to={ROUTES.notes} />;
+    return (
+      <EmptyState
+        description="This note could not be found. It may have been removed or is no longer available."
+        icon={FileQuestion}
+        title="Note not found"
+      />
+    );
   }
 
   return <NoteReadDocument note={note} />;

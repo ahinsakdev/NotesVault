@@ -1,8 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router";
+import { FileQuestion } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import { ROUTES } from "@/app/routes";
 
 import { useAppShell } from "@/components/layout/use-app-shell";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { RouteLoadingFallback } from "@/components/ui/route-loading-fallback";
 import { NoteEditorHeader } from "@/features/note-editor/components/note-editor-header";
 import { NoteEditorMain } from "@/features/note-editor/components/note-editor-main";
 import { NoteEditorMetadata } from "@/features/note-editor/components/note-editor-metadata";
@@ -10,7 +14,10 @@ import { useNoteEditor } from "@/features/note-editor/hooks/use-note-editor";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/utils/cn";
 
-import { notesMockData } from "../data/notes.mock-data";
+import { NotesErrorState } from "../components/notes-error-state";
+import { useNote } from "../hooks/use-note";
+import { useMoveNoteToTrash } from "../hooks/use-move-note-to-trash";
+import { useUpdateNoteState } from "../hooks/use-update-note-state";
 import type { Note } from "../types/note.types";
 
 type NoteEditorContentProps = {
@@ -19,38 +26,41 @@ type NoteEditorContentProps = {
 };
 
 function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
-    const exportHandlerRef = useRef<(() => void) | null>(null);
+  const exportHandlerRef = useRef<(() => void) | null>(null);
 
-    const [isTrashDialogOpen, setIsTrashDialogOpen] = useState(false);
+  const [isTrashDialogOpen, setIsTrashDialogOpen] = useState(false);
 
-    const { showToast } = useToast();
+  const { showToast } = useToast();
+  const navigate = useNavigate();
+  const moveNoteToTrashMutation = useMoveNoteToTrash();
+  const updateNoteStateMutation = useUpdateNoteState();
 
-    const { enterFocusMode, exitFocusMode, isFocusMode } = useAppShell();
+  const { enterFocusMode, exitFocusMode, isFocusMode } = useAppShell();
 
-    useEffect(() => {
-      return () => {
-        exitFocusMode();
-      };
-    }, [exitFocusMode]);
+  useEffect(() => {
+    return () => {
+      exitFocusMode();
+    };
+  }, [exitFocusMode]);
 
-    const { saveState, values, saveNote, updateContent, updateField } =
-      useNoteEditor({
-        isNewNote,
-        note,
-      });
+  const { saveState, values, saveNote, updateContent, updateField } =
+    useNoteEditor({
+      isNewNote,
+      note,
+    });
 
-    const handleExportReady = useCallback((handler: () => void) => {
-      exportHandlerRef.current = handler;
-    }, []);
+  const handleExportReady = useCallback((handler: () => void) => {
+    exportHandlerRef.current = handler;
+  }, []);
 
-    function handleToggleFocusMode() {
-      if (isFocusMode) {
-        exitFocusMode();
-        return;
-      }
-
-      enterFocusMode();
+  function handleToggleFocusMode() {
+    if (isFocusMode) {
+      exitFocusMode();
+      return;
     }
+
+    enterFocusMode();
+  }
 
   function handleDuplicate() {
     showToast({
@@ -72,14 +82,78 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
     setIsTrashDialogOpen(true);
   }
 
-  function handleConfirmTrash() {
+  async function handleArchiveChange(value: boolean) {
+    if (updateNoteStateMutation.isPending) {
+      return;
+    }
+
+    if (!note) {
+      updateField("isArchived", value);
+      return;
+    }
+
+    try {
+      await updateNoteStateMutation.mutateAsync({
+        noteId: note.id,
+        updates: {
+          isArchived: value,
+        },
+      });
+
+      showToast({
+        title: value ? "Note archived" : "Note unarchived",
+        message: value
+          ? "The note was moved to Archived."
+          : "The note was returned to your active notes.",
+        variant: "success",
+      });
+
+      navigate(value ? ROUTES.archived : ROUTES.notes, {
+        replace: true,
+      });
+    } catch {
+      showToast({
+        title: "Unable to update note",
+        message: "The note could not be updated. Please try again.",
+        variant: "error",
+      });
+    }
+  }
+
+  async function handleConfirmTrash() {
+    if (moveNoteToTrashMutation.isPending) {
+      return;
+    }
+
     setIsTrashDialogOpen(false);
 
-    showToast({
-      message: "Move to Trash is not available yet.",
-      title: "Move to trash",
-      variant: "info",
-    });
+    if (!note) {
+      navigate(ROUTES.notes, {
+        replace: true,
+      });
+
+      return;
+    }
+
+    try {
+      await moveNoteToTrashMutation.mutateAsync(note.id);
+
+      showToast({
+        message: "The note was moved to Trash.",
+        title: "Note moved to trash",
+        variant: "success",
+      });
+
+      navigate(ROUTES.notes, {
+        replace: true,
+      });
+    } catch {
+      showToast({
+        message: "We couldn't move this note to Trash. Try again.",
+        title: "Unable to move note",
+        variant: "error",
+      });
+    }
   }
 
   return (
@@ -93,10 +167,14 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
         )}
       >
         <NoteEditorHeader
+          isArchived={values.isArchived}
           isFavorite={values.isFavorite}
           isFocusMode={isFocusMode}
           isNewNote={isNewNote}
           isPinned={values.isPinned}
+          onArchiveChange={(value) => {
+            void handleArchiveChange(value);
+          }}
           onDuplicate={handleDuplicate}
           onExport={handleExport}
           onFavoriteChange={(value) => updateField("isFavorite", value)}
@@ -137,6 +215,7 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
               onFavoriteChange={(value) => updateField("isFavorite", value)}
               onFolderChange={(value) => updateField("folderName", value)}
               onPinnedChange={(value) => updateField("isPinned", value)}
+              onTrash={handleTrash}
               values={values}
             />
           ) : null}
@@ -162,14 +241,36 @@ export function NoteDetailsPage() {
 
   const isNewNote = noteId === "new";
 
-  const note = useMemo(
-    () =>
-      isNewNote
-        ? null
-        : (notesMockData.find((currentNote) => currentNote.id === noteId) ??
-          null),
-    [isNewNote, noteId],
-  );
+  const {
+    data: note,
+    isError,
+    isLoading,
+    refetch,
+  } = useNote(isNewNote ? null : noteId);
 
-  return <NoteEditorContent isNewNote={isNewNote} note={note} />;
+  if (isLoading) {
+    return <RouteLoadingFallback />;
+  }
+
+  if (isError) {
+    return (
+      <NotesErrorState
+        onRetry={() => {
+          void refetch();
+        }}
+      />
+    );
+  }
+
+  if (!isNewNote && !note) {
+    return (
+      <EmptyState
+        description="This note could not be found."
+        icon={FileQuestion}
+        title="Note not found"
+      />
+    );
+  }
+
+  return <NoteEditorContent isNewNote={isNewNote} note={note ?? null} />;
 }

@@ -1,11 +1,17 @@
 import { ROUTES } from "@/app/routes";
 
-import { recentNotes } from "../data/dashboard.mock-data";
+import type { DashboardNote } from "../types/dashboard.types";
 import { DashboardEmptyState } from "./dashboard-empty-state";
 import { DashboardSectionHeader } from "./dashboard-section-header";
 import { NoteCard } from "./note-card";
 
-export function RecentNotesSection() {
+type RecentNotesSectionProps = {
+  notes: DashboardNote[];
+};
+
+export function RecentNotesSection({
+  notes,
+}: RecentNotesSectionProps) {
   return (
     <section>
       <DashboardSectionHeader
@@ -15,9 +21,9 @@ export function RecentNotesSection() {
         title="Recent notes"
       />
 
-      {recentNotes.length > 0 ? (
+      {notes.length > 0 ? (
         <div className="space-y-3">
-          {recentNotes.map((note) => (
+          {notes.map((note) => (
             <NoteCard key={note.id} note={note} />
           ))}
         </div>

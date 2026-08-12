@@ -1,4 +1,6 @@
 import {
+  Archive,
+  ArchiveRestore,
   ArrowLeft,
   Edit3,
   MoreHorizontal,
@@ -17,24 +19,34 @@ import { cn } from "@/utils/cn";
 import { NoteReadProgress } from "./note-read-progress";
 
 type NoteReadHeaderProps = {
+  isArchived: boolean;
   isCompact: boolean;
   isFavorite: boolean;
   isPinned: boolean;
   isPreferencesOpen: boolean;
   noteId: string;
   noteTitle: string;
+  onArchiveChange: () => void;
+  onFavoriteChange: () => void;
   onOpenPreferences: () => void;
+  onPinnedChange: () => void;
+  isStateUpdating: boolean;
   preferencesTriggerRef: RefObject<HTMLButtonElement | null>;
 };
 
 export function NoteReadHeader({
+  isArchived,
   isCompact,
   isFavorite,
   isPinned,
   isPreferencesOpen,
   noteId,
   noteTitle,
+  onArchiveChange,
+  onFavoriteChange,
   onOpenPreferences,
+  onPinnedChange,
+  isStateUpdating,
   preferencesTriggerRef,
 }: NoteReadHeaderProps) {
   const editRoute = ROUTES.noteDetails.replace(":noteId", noteId);
@@ -137,9 +149,26 @@ export function NoteReadHeader({
           </div>
 
           <button
+            aria-label={isArchived ? "Unarchive note" : "Archive note"}
+            className="notesvault-focus-ring flex size-8 items-center justify-center border border-border bg-background text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            disabled={isStateUpdating}
+            onClick={onArchiveChange}
+            title={isArchived ? "Unarchive note" : "Archive note"}
+            type="button"
+          >
+            {isArchived ? (
+              <ArchiveRestore aria-hidden="true" className="size-3.5" />
+            ) : (
+              <Archive aria-hidden="true" className="size-3.5" />
+            )}
+          </button>
+
+          <button
             aria-label={isPinned ? "Pinned note" : "Pin note"}
             className="notesvault-focus-ring flex size-8 items-center justify-center border border-border bg-background transition-colors hover:bg-secondary"
-            title={isPinned ? "Pinned" : "Pin note"}
+            disabled={isStateUpdating}
+            onClick={onPinnedChange}
+            title={isPinned ? "Unpin note" : "Pin note"}
             type="button"
           >
             <Pin
@@ -155,7 +184,9 @@ export function NoteReadHeader({
           <button
             aria-label={isFavorite ? "Favorite note" : "Add to favorites"}
             className="notesvault-focus-ring flex size-8 items-center justify-center border border-border bg-background transition-colors hover:bg-secondary"
-            title={isFavorite ? "Favorite" : "Add to favorites"}
+            disabled={isStateUpdating}
+            onClick={onFavoriteChange}
+            title={isFavorite ? "Remove from favorites" : "Add to favorites"}
             type="button"
           >
             <Star

@@ -10,11 +10,13 @@ import { NoteActionsMenu } from "./note-actions-menu";
 import { NoteEditorSaveStatus } from "./note-editor-save-status";
 
 type NoteEditorHeaderProps = {
+  isArchived: boolean;
   isFavorite: boolean;
   isFocusMode: boolean;
   isNewNote: boolean;
   isPinned: boolean;
   saveState: NoteEditorSaveState;
+  onArchiveChange: (value: boolean) => void;
   onDuplicate: () => void;
   onExport: () => void;
   onFavoriteChange: (value: boolean) => void;
@@ -26,10 +28,12 @@ type NoteEditorHeaderProps = {
 };
 
 export function NoteEditorHeader({
+  isArchived,
   isFavorite,
   isFocusMode,
   isNewNote,
   isPinned,
+  onArchiveChange,
   onDuplicate,
   onExport,
   onFavoriteChange,
@@ -104,8 +108,10 @@ export function NoteEditorHeader({
         </button>
 
         <NoteActionsMenu
+          isArchived={isArchived}
           isFavorite={isFavorite}
           isPinned={isPinned}
+          onArchiveChange={onArchiveChange}
           onDuplicate={onDuplicate}
           onExport={onExport}
           onFavoriteChange={onFavoriteChange}

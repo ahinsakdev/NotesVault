@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { NotesErrorState } from "@/features/notes/components/notes-error-state";
 import { NotesSkeleton } from "@/features/notes/components/notes-skeleton";
-import { useNotes } from "@/features/notes/hooks/use-notes";
 import type { Note } from "@/features/notes/types/note.types";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/utils/get-error-message";
 
 import { TrashEmptyState } from "../components/trash-empty-state";
 import { TrashNotesGrid } from "../components/trash-notes-grid";
+import { useEmptyTrash } from "../hooks/use-empty-trash";
+import { usePermanentlyDeleteNote } from "../hooks/use-permanently-delete-note";
+import { useRestoreNote } from "../hooks/use-restore-note";
 import { useTrashNotes } from "../hooks/use-trash-notes";
 
 type PendingTrashAction =
@@ -24,26 +27,54 @@ type PendingTrashAction =
   | null;
 
 export function TrashPage() {
-  const { data: notes = [], isError, isLoading, refetch } = useNotes();
+  const {
+    data: trashNotes = [],
+    isError,
+    isLoading,
+    refetch,
+  } = useTrashNotes();
 
-  const { emptyTrash, permanentlyDeleteNote, restoreNote, visibleTrashNotes } =
-    useTrashNotes(notes);
+  const restoreNoteMutation = useRestoreNote();
+  const permanentlyDeleteNoteMutation = usePermanentlyDeleteNote();
+  const emptyTrashMutation = useEmptyTrash();
 
   const { showToast } = useToast();
 
-  const [pendingAction, setPendingAction] = useState<PendingTrashAction>(null);
+  const [pendingAction, setPendingAction] =
+    useState<PendingTrashAction>(null);
 
-  function handleRestore(note: Note) {
-    restoreNote(note.id);
+  const isMutating =
+    restoreNoteMutation.isPending ||
+    permanentlyDeleteNoteMutation.isPending ||
+    emptyTrashMutation.isPending;
 
-    showToast({
-      message: `"${note.title}" was restored to your notes.`,
-      title: "Note restored",
-      variant: "success",
-    });
+  async function handleRestore(note: Note) {
+    if (isMutating) {
+      return;
+    }
+
+    try {
+      await restoreNoteMutation.mutateAsync(note.id);
+
+      showToast({
+        message: `"${note.title}" was restored to your notes.`,
+        title: "Note restored",
+        variant: "success",
+      });
+    } catch (error) {
+      showToast({
+        message: getErrorMessage(error),
+        title: "Unable to restore note",
+        variant: "error",
+      });
+    }
   }
 
   function handleRequestDelete(note: Note) {
+    if (isMutating) {
+      return;
+    }
+
     setPendingAction({
       type: "delete-note",
       note,
@@ -51,7 +82,7 @@ export function TrashPage() {
   }
 
   function handleRequestEmptyTrash() {
-    if (visibleTrashNotes.length === 0) {
+    if (trashNotes.length === 0 || isMutating) {
       return;
     }
 
@@ -61,41 +92,62 @@ export function TrashPage() {
   }
 
   function handleCancelConfirmation() {
+    if (isMutating) {
+      return;
+    }
+
     setPendingAction(null);
   }
 
-  function handleConfirmAction() {
-    if (!pendingAction) {
+  async function handleConfirmAction() {
+    if (!pendingAction || isMutating) {
       return;
     }
 
     if (pendingAction.type === "delete-note") {
-      permanentlyDeleteNote(pendingAction.note.id);
+      const note = pendingAction.note;
 
-      showToast({
-        message: `"${pendingAction.note.title}" was permanently deleted.`,
-        title: "Note deleted",
-        variant: "success",
-      });
+      try {
+        await permanentlyDeleteNoteMutation.mutateAsync(note.id);
 
-      setPendingAction(null);
+        setPendingAction(null);
+
+        showToast({
+          message: `"${note.title}" was permanently deleted.`,
+          title: "Note deleted",
+          variant: "success",
+        });
+      } catch (error) {
+        showToast({
+          message: getErrorMessage(error),
+          title: "Unable to delete note",
+          variant: "error",
+        });
+      }
+
       return;
     }
 
-    const deletedCount = visibleTrashNotes.length;
+    try {
+      const deletedCount = await emptyTrashMutation.mutateAsync();
 
-    emptyTrash();
+      setPendingAction(null);
 
-    showToast({
-      message:
-        deletedCount === 1
-          ? "1 note was permanently deleted."
-          : `${deletedCount} notes were permanently deleted.`,
-      title: "Trash emptied",
-      variant: "success",
-    });
-
-    setPendingAction(null);
+      showToast({
+        message:
+          deletedCount === 1
+            ? "1 note was permanently deleted."
+            : `${deletedCount} notes were permanently deleted.`,
+        title: "Trash emptied",
+        variant: "success",
+      });
+    } catch (error) {
+      showToast({
+        message: getErrorMessage(error),
+        title: "Unable to empty trash",
+        variant: "error",
+      });
+    }
   }
 
   const isDeletingSingleNote = pendingAction?.type === "delete-note";
@@ -106,11 +158,13 @@ export function TrashPage() {
 
   const confirmDescription = isDeletingSingleNote
     ? `"${pendingAction.note.title}" will be permanently deleted. This action cannot be undone.`
-    : `All ${visibleTrashNotes.length} ${
-        visibleTrashNotes.length === 1 ? "note" : "notes"
+    : `All ${trashNotes.length} ${
+        trashNotes.length === 1 ? "note" : "notes"
       } in Trash will be permanently deleted. This action cannot be undone.`;
 
-  const confirmLabel = isDeletingSingleNote ? "Delete forever" : "Empty trash";
+  const confirmLabel = isDeletingSingleNote
+    ? "Delete forever"
+    : "Empty trash";
 
   return (
     <>
@@ -120,8 +174,8 @@ export function TrashPage() {
             <p className="text-xs font-medium text-muted-foreground">
               {isLoading
                 ? "Loading trash"
-                : `${visibleTrashNotes.length} ${
-                    visibleTrashNotes.length === 1
+                : `${trashNotes.length} ${
+                    trashNotes.length === 1
                       ? "deleted note"
                       : "deleted notes"
                   }`}
@@ -137,7 +191,7 @@ export function TrashPage() {
           </div>
 
           <Button
-            disabled={isLoading || visibleTrashNotes.length === 0}
+            disabled={isLoading || trashNotes.length === 0 || isMutating}
             leftIcon={<Trash2 aria-hidden="true" className="size-4" />}
             onClick={handleRequestEmptyTrash}
             variant="danger"
@@ -156,13 +210,15 @@ export function TrashPage() {
                   void refetch();
                 }}
               />
-            ) : visibleTrashNotes.length === 0 ? (
+            ) : trashNotes.length === 0 ? (
               <TrashEmptyState />
             ) : (
               <TrashNotesGrid
-                notes={visibleTrashNotes}
+                notes={trashNotes}
                 onDelete={handleRequestDelete}
-                onRestore={handleRestore}
+                onRestore={(note) => {
+                  void handleRestore(note);
+                }}
               />
             )}
           </div>
@@ -174,7 +230,9 @@ export function TrashPage() {
         description={confirmDescription}
         isOpen={pendingAction !== null}
         onCancel={handleCancelConfirmation}
-        onConfirm={handleConfirmAction}
+        onConfirm={() => {
+          void handleConfirmAction();
+        }}
         title={confirmTitle}
         variant="danger"
       />

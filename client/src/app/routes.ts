@@ -18,6 +18,7 @@ export const ROUTES = {
   recent: "/app/recent",
   favorites: "/app/favorites",
   pinned: "/app/pinned",
+  archived: "/app/archived",
 
   folders: "/app/folders",
   folder: "/app/folders/:folderId",

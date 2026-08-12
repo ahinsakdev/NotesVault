@@ -75,6 +75,12 @@ const FavoritesPage = lazy(() =>
   })),
 );
 
+const ArchivedNotesPage = lazy(() =>
+  import("@/features/notes/pages/archived-notes-page").then((module) => ({
+    default: module.ArchivedNotesPage,
+  })),
+);
+
 const PinnedNotesPage = lazy(() =>
   import("@/features/notes/pages/pinned-notes-page").then((module) => ({
     default: module.PinnedNotesPage,
@@ -271,6 +277,15 @@ export function AppRouter() {
               </RouteSuspense>
             }
             path="pinned"
+          />
+
+          <Route
+            element={
+              <RouteSuspense>
+                <ArchivedNotesPage />
+              </RouteSuspense>
+            }
+            path="archived"
           />
 
           <Route

@@ -1,4 +1,5 @@
 import {
+  Archive,
   FileText,
   Folder,
   History,
@@ -58,6 +59,11 @@ const libraryNavigation = [
     label: "Pinned",
     to: ROUTES.pinned,
     icon: Pin,
+  },
+  {
+    label: "Archived",
+    to: ROUTES.archived,
+    icon: Archive,
   },
   {
     label: "Folders",

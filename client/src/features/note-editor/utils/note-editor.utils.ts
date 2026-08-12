@@ -40,16 +40,18 @@ export function createEmptyNoteEditorValues(): NoteEditorValues {
     tags: [],
     isPinned: false,
     isFavorite: false,
+    isArchived: false,
   };
 }
 
 export function createNoteEditorValues(note: Note): NoteEditorValues {
   return {
     title: note.title,
-    content: createParagraphDocument(note.preview),
+    content: note.content,
     folderName: note.folderName,
     tags: [...note.tags],
     isPinned: note.isPinned,
     isFavorite: note.isFavorite,
+    isArchived: note.isArchived,
   };
 }

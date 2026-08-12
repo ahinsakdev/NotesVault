@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import { authRouter } from "../modules/auth/routes/auth.routes.js";
+import { notesRouter } from "../modules/notes/routes/notes.routes.js";
 
 export const apiRouter = Router();
 
@@ -12,3 +13,5 @@ apiRouter.get("/health", (_request, response) => {
 });
 
 apiRouter.use("/auth", authRouter);
+
+apiRouter.use("/notes", notesRouter);

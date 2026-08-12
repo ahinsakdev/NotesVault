@@ -1,11 +1,13 @@
-import { useMemo } from "react";
+import { useEffect } from "react";
+import { EditorContent, type JSONContent, useEditor } from "@tiptap/react";
 
+import { editorExtensions } from "@/features/note-editor/extensions/editor-extensions";
 import { cn } from "@/utils/cn";
 
 import type { ReaderPreferences } from "../../types/reader-preferences.types";
 
 type NoteReadContentProps = {
-  content: string;
+  content: JSONContent;
   preferences: ReaderPreferences;
 };
 
@@ -13,14 +15,29 @@ export function NoteReadContent({
   content,
   preferences,
 }: NoteReadContentProps) {
-  const paragraphs = useMemo(
-    () =>
-      content
-        .split(/\n\s*\n/)
-        .map((paragraph) => paragraph.trim())
-        .filter(Boolean),
-    [content],
-  );
+  const editor = useEditor({
+    extensions: editorExtensions,
+    content,
+    contentType: "json",
+    editable: false,
+    shouldRerenderOnTransaction: false,
+
+    editorProps: {
+      attributes: {
+        class: "notesvault-editor notesvault-reader outline-none",
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    editor.commands.setContent(content, {
+      emitUpdate: false,
+    });
+  }, [content, editor]);
 
   return (
     <article
@@ -37,7 +54,6 @@ export function NoteReadContent({
       >
         <div
           className={cn(
-            "notesvault-editor notesvault-reader",
             preferences.fontFamily === "serif"
               ? "notesvault-reader--serif"
               : "notesvault-reader--sans",
@@ -51,9 +67,7 @@ export function NoteReadContent({
               "notesvault-reader--relaxed",
           )}
         >
-          {paragraphs.map((paragraph, index) => (
-            <p key={`${index}-${paragraph.slice(0, 24)}`}>{paragraph}</p>
-          ))}
+          <EditorContent editor={editor} />
         </div>
       </div>
     </article>

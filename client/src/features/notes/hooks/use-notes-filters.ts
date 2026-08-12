@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 
-import { filterAndSortNotes, getNotesFilterOptions } from "../utils/note.utils";
+import {
+  filterAndSortNotes,
+  getNotesFilterOptions,
+  type NotesCollectionScope,
+} from "../utils/note.utils";
 import type {
   Note,
   NotesFilters,
@@ -16,12 +20,15 @@ const initialFilters: NotesFilters = {
   view: "grid",
 };
 
-export function useNotesFilters(notes: Note[]) {
+export function useNotesFilters(
+  notes: Note[],
+  scope: NotesCollectionScope = "active",
+) {
   const [filters, setFilters] = useState<NotesFilters>(initialFilters);
 
   const filteredNotes = useMemo(
-    () => filterAndSortNotes(notes, filters),
-    [filters, notes],
+    () => filterAndSortNotes(notes, filters, scope),
+    [filters, notes, scope],
   );
 
   const filterOptions = useMemo(() => getNotesFilterOptions(notes), [notes]);

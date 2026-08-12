@@ -1,11 +1,17 @@
 import { ROUTES } from "@/app/routes";
 
-import { pinnedNotes } from "../data/dashboard.mock-data";
+import type { DashboardNote } from "../types/dashboard.types";
 import { DashboardEmptyState } from "./dashboard-empty-state";
 import { DashboardSectionHeader } from "./dashboard-section-header";
 import { NoteCard } from "./note-card";
 
-export function PinnedNotesSection() {
+type PinnedNotesSectionProps = {
+  notes: DashboardNote[];
+};
+
+export function PinnedNotesSection({
+  notes,
+}: PinnedNotesSectionProps) {
   return (
     <section>
       <DashboardSectionHeader
@@ -15,9 +21,9 @@ export function PinnedNotesSection() {
         title="Pinned notes"
       />
 
-      {pinnedNotes.length > 0 ? (
+      {notes.length > 0 ? (
         <div className="space-y-3">
-          {pinnedNotes.map((note) => (
+          {notes.map((note) => (
             <NoteCard key={note.id} note={note} />
           ))}
         </div>
