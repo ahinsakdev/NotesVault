@@ -7,16 +7,33 @@ export function normalizeNoteTitle(title: string): string {
 export function normalizeNoteFolderName(folderName: string): string {
   const normalizedFolderName = folderName.trim();
 
-  return normalizedFolderName || "Notes";
+  return normalizedFolderName || "Unfiled";
 }
 
 export function normalizeNoteTags(tags: string[]): string[] {
-  const normalizedTags = tags
-    .map((tag) => tag.trim())
-    .filter(Boolean);
+  const normalizedTags: string[] = [];
+  const normalizedTagKeys = new Set<string>();
 
-  return [...new Set(normalizedTags)].slice(
-    0,
-    NOTE_VALIDATION.maxTags,
-  );
+  for (const tag of tags) {
+    const normalizedTag = tag.trim();
+
+    if (!normalizedTag) {
+      continue;
+    }
+
+    const normalizedTagKey = normalizedTag.toLocaleLowerCase();
+
+    if (normalizedTagKeys.has(normalizedTagKey)) {
+      continue;
+    }
+
+    normalizedTagKeys.add(normalizedTagKey);
+    normalizedTags.push(normalizedTag);
+
+    if (normalizedTags.length === NOTE_VALIDATION.maxTags) {
+      break;
+    }
+  }
+
+  return normalizedTags;
 }

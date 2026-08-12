@@ -3,6 +3,8 @@ import { FileQuestion } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { ROUTES } from "@/app/routes";
+import { DEFAULT_NOTE_FOLDER } from "@/features/folders/constants/folder.constants";
+import { useFolders } from "@/features/folders/hooks/use-folders";
 
 import { useAppShell } from "@/components/layout/use-app-shell";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -12,7 +14,10 @@ import { NoteEditorHeader } from "@/features/note-editor/components/note-editor-
 import { NoteEditorMain } from "@/features/note-editor/components/note-editor-main";
 import { NoteEditorMetadata } from "@/features/note-editor/components/note-editor-metadata";
 import { useNoteEditor } from "@/features/note-editor/hooks/use-note-editor";
+import type { NoteEditorValues } from "@/features/note-editor/types/note-editor.types";
+import { createEmptyNoteEditorValues } from "@/features/note-editor/utils/note-editor.utils";
 import { useUnsavedNoteWarning } from "@/features/note-editor/hooks/use-unsaved-note-warning";
+import { useNotePreferences } from "@/features/settings/hooks/use-note-preferences";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/utils/cn";
 
@@ -25,11 +30,16 @@ import { useUpdateNoteState } from "../hooks/use-update-note-state";
 import type { Note } from "../types/note.types";
 
 type NoteEditorContentProps = {
+  initialValues?: NoteEditorValues;
   isNewNote: boolean;
   note: Note | null;
 };
 
-function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
+function NoteEditorContent({
+  initialValues,
+  isNewNote,
+  note,
+}: NoteEditorContentProps) {
   const exportHandlerRef = useRef<(() => void) | null>(null);
 
   const [isTrashDialogOpen, setIsTrashDialogOpen] = useState(false);
@@ -49,11 +59,18 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
     };
   }, [exitFocusMode]);
 
-  const { saveState, values, saveNote, updateContent, updateField } =
-    useNoteEditor({
-      isNewNote,
-      note,
-    });
+  const {
+    saveState,
+    values,
+    saveNote,
+    updateContent,
+    updateField,
+    updateFields,
+  } = useNoteEditor({
+    initialValues,
+    isNewNote,
+    note,
+  });
 
   const hasUnsafeChanges =
     saveState === "unsaved" ||
@@ -100,6 +117,7 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
           ? `${note.title} (Copy)`
           : "Untitled note (Copy)",
         content: note.content,
+        folderId: note.folderId || null,
         folderName: note.folderName,
         tags: [...note.tags],
         isPinned: false,
@@ -308,8 +326,14 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
             <NoteEditorMetadata
               note={note}
               onFavoriteChange={(value) => updateField("isFavorite", value)}
-              onFolderChange={(value) => updateField("folderName", value)}
+              onFolderChange={(folderId, folderName) => {
+                updateFields({
+                  folderId,
+                  folderName,
+                });
+              }}
               onPinnedChange={(value) => updateField("isPinned", value)}
+              onTagsChange={(tags) => updateField("tags", tags)}
               onTrash={handleTrash}
               values={values}
             />
@@ -354,7 +378,16 @@ export function NoteDetailsPage() {
     refetch,
   } = useNote(isNewNote ? null : noteId);
 
-  if (isLoading) {
+  const foldersQuery = useFolders();
+  const { preferences: notePreferences } = useNotePreferences();
+
+  const shouldResolveDefaultFolder =
+    isNewNote && Boolean(notePreferences.defaultFolderId);
+
+  if (
+    isLoading ||
+    (shouldResolveDefaultFolder && foldersQuery.isLoading)
+  ) {
     return <RouteLoadingFallback />;
   }
 
@@ -378,5 +411,26 @@ export function NoteDetailsPage() {
     );
   }
 
-  return <NoteEditorContent isNewNote={isNewNote} note={note ?? null} />;
+  const defaultFolder =
+    isNewNote && notePreferences.defaultFolderId
+      ? foldersQuery.data?.find(
+          (folder) => folder.id === notePreferences.defaultFolderId,
+        ) ?? null
+      : null;
+
+  const initialValues = isNewNote
+    ? {
+        ...createEmptyNoteEditorValues(),
+        folderId: defaultFolder?.id ?? "",
+        folderName: defaultFolder?.name ?? DEFAULT_NOTE_FOLDER,
+      }
+    : undefined;
+
+  return (
+    <NoteEditorContent
+      initialValues={initialValues}
+      isNewNote={isNewNote}
+      note={note ?? null}
+    />
+  );
 }

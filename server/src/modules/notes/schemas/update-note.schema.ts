@@ -11,6 +11,10 @@ const tagSchema = z
   .min(1)
   .max(NOTE_VALIDATION.tagMaxLength);
 
+const folderIdSchema = z
+  .string()
+  .regex(/^[a-f\d]{24}$/i, "Invalid folder ID");
+
 export const updateNoteSchema = z
   .object({
     title: z
@@ -19,6 +23,8 @@ export const updateNoteSchema = z
       .optional(),
 
     content: noteContentSchema.optional(),
+
+    folderId: folderIdSchema.nullable().optional(),
 
     folderName: z
       .string()

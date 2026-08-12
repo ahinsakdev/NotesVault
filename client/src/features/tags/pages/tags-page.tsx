@@ -1,7 +1,6 @@
-import { Plus, Tags } from "lucide-react";
+import { Tags } from "lucide-react";
 import { useMemo } from "react";
 
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NotesErrorState } from "@/features/notes/components/notes-error-state";
 import { useNotes } from "@/features/notes/hooks/use-notes";
@@ -33,13 +32,6 @@ export function TagsPage() {
           </p>
         </div>
 
-        <Button
-          disabled
-          leftIcon={<Plus aria-hidden="true" className="size-4" />}
-          title="Tag creation is not available yet"
-        >
-          New tag
-        </Button>
       </header>
 
       {isLoading ? (

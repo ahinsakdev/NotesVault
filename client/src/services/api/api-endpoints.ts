@@ -8,6 +8,17 @@ export const API_ENDPOINTS = {
     resetPassword: "/api/v1/auth/reset-password",
   },
 
+  folders: {
+    list: "/api/v1/folders",
+    create: "/api/v1/folders",
+    byId: (folderId: string) => `/api/v1/folders/${folderId}`,
+  },
+
+  tags: {
+    byName: (tagName: string) =>
+      `/api/v1/tags/${encodeURIComponent(tagName)}`,
+  },
+
   notes: {
     list: "/api/v1/notes",
     create: "/api/v1/notes",

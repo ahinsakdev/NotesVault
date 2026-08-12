@@ -12,6 +12,7 @@ export type NoteEditorSaveState =
 export type NoteEditorValues = {
   title: string;
   content: JSONContent;
+  folderId: string;
   folderName: string;
   tags: string[];
   isPinned: boolean;

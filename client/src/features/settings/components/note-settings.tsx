@@ -1,17 +1,30 @@
 import { Folder, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  NOTE_FOLDER_OPTIONS,
-  type NoteFolderOption,
-} from "@/features/folders/constants/folder.constants";
+import { DEFAULT_NOTE_FOLDER } from "@/features/folders/constants/folder.constants";
+import { useFolders } from "@/features/folders/hooks/use-folders";
 
 import { useNotePreferences } from "../hooks/use-note-preferences";
 import { SettingsSection } from "./settings-section";
 
 export function NoteSettings() {
-  const { preferences, resetPreferences, setDefaultFolder } =
-    useNotePreferences();
+  const foldersQuery = useFolders();
+
+  const {
+    preferences,
+    resetPreferences,
+    setDefaultFolderId,
+  } = useNotePreferences();
+
+  const defaultFolderExists =
+    !preferences.defaultFolderId ||
+    (foldersQuery.data ?? []).some(
+      (folder) => folder.id === preferences.defaultFolderId,
+    );
+
+  const selectedFolderId = defaultFolderExists
+    ? preferences.defaultFolderId
+    : "";
 
   return (
     <SettingsSection
@@ -39,20 +52,31 @@ export function NoteSettings() {
             </div>
           </div>
 
-          <select
-            className="h-9 w-full max-w-xs border border-input bg-background px-3 text-xs text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/20"
-            id="default-note-folder"
-            onChange={(event) =>
-              setDefaultFolder(event.target.value as NoteFolderOption)
-            }
-            value={preferences.defaultFolder}
-          >
-            {NOTE_FOLDER_OPTIONS.map((folder) => (
-              <option key={folder} value={folder}>
-                {folder}
-              </option>
-            ))}
-          </select>
+          <div className="max-w-xs">
+            <select
+              className="h-9 w-full border border-input bg-background px-3 text-xs text-foreground outline-none transition-colors focus:border-ring focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={foldersQuery.isLoading}
+              id="default-note-folder"
+              onChange={(event) =>
+                setDefaultFolderId(event.target.value)
+              }
+              value={selectedFolderId}
+            >
+              <option value="">{DEFAULT_NOTE_FOLDER}</option>
+
+              {(foldersQuery.data ?? []).map((folder) => (
+                <option key={folder.id} value={folder.id}>
+                  {folder.name}
+                </option>
+              ))}
+            </select>
+
+            {foldersQuery.isError ? (
+              <p className="mt-1.5 text-[10px] text-danger">
+                Unable to load folders.
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <div className="border-t border-border pt-5">

@@ -1,10 +1,12 @@
 import { Plus } from "lucide-react";
+import type { ReactNode } from "react";
 import { useNavigate } from "react-router";
 
 import { ROUTES } from "@/app/routes";
 import { Button } from "@/components/ui/button";
 
 type NotesHeaderProps = {
+  actions?: ReactNode;
   description?: string;
   isLoading?: boolean;
   noteCount: number;
@@ -12,6 +14,7 @@ type NotesHeaderProps = {
 };
 
 export function NotesHeader({
+  actions,
   description = "Capture, organize, and revisit everything that matters.",
   isLoading = false,
   noteCount,
@@ -39,9 +42,16 @@ export function NotesHeader({
         <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
 
-      <Button leftIcon={<Plus className="size-4" />} onClick={handleCreateNote}>
-        New note
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        {actions}
+
+        <Button
+          leftIcon={<Plus className="size-4" />}
+          onClick={handleCreateNote}
+        >
+          New note
+        </Button>
+      </div>
     </header>
   );
 }

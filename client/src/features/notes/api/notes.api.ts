@@ -21,6 +21,7 @@ type EmptyTrashResponse = {
 export type CreateNoteInput = {
   title: string;
   content: JSONContent;
+  folderId: string | null;
   folderName: string;
   tags: string[];
   isPinned: boolean;

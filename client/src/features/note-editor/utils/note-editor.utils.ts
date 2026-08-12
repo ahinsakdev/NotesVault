@@ -36,6 +36,7 @@ export function createEmptyNoteEditorValues(): NoteEditorValues {
   return {
     title: "",
     content: createParagraphDocument(),
+    folderId: "",
     folderName: DEFAULT_NOTE_FOLDER,
     tags: [],
     isPinned: false,
@@ -48,6 +49,7 @@ export function createNoteEditorValues(note: Note): NoteEditorValues {
   return {
     title: note.title,
     content: note.content,
+    folderId: note.folderId,
     folderName: note.folderName,
     tags: [...note.tags],
     isPinned: note.isPinned,

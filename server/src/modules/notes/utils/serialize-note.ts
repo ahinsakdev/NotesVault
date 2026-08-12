@@ -8,6 +8,9 @@ type SerializableNote = {
   title: string;
   content: NoteContentNode;
   preview: string;
+  folderId?: {
+    toString(): string;
+  } | null;
   folderName: string;
   tags: string[];
   accent: NoteAccent;
@@ -42,7 +45,7 @@ export function serializeNote(note: SerializableNote): SerializedNote {
     title: note.title,
     content: note.content,
     preview: note.preview,
-    folderId: note.folderName,
+    folderId: note.folderId?.toString() ?? "",
     folderName: note.folderName,
     tags: [...note.tags],
     accent: note.accent,

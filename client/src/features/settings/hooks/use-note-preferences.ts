@@ -1,23 +1,13 @@
 import { useEffect, useState } from "react";
 
-import {
-  DEFAULT_NOTE_FOLDER,
-  NOTE_FOLDER_OPTIONS,
-  type NoteFolderOption,
-} from "@/features/folders/constants/folder.constants";
-
 import type { NotePreferences } from "../types/note-preferences.types";
 
 const NOTE_PREFERENCES_STORAGE_KEY = "notesvault-note-preferences";
 const NOTE_PREFERENCES_CHANGE_EVENT = "notesvault-note-preferences-change";
 
 const defaultNotePreferences: NotePreferences = {
-  defaultFolder: DEFAULT_NOTE_FOLDER,
+  defaultFolderId: "",
 };
-
-function isNoteFolderOption(value: unknown): value is NoteFolderOption {
-  return NOTE_FOLDER_OPTIONS.includes(value as NoteFolderOption);
-}
 
 function loadNotePreferences(): NotePreferences {
   if (typeof window === "undefined") {
@@ -33,14 +23,15 @@ function loadNotePreferences(): NotePreferences {
   }
 
   try {
-    const parsedPreferences = JSON.parse(
-      storedPreferences,
-    ) as Partial<NotePreferences>;
+    const parsedPreferences = JSON.parse(storedPreferences) as {
+      defaultFolderId?: unknown;
+    };
 
     return {
-      defaultFolder: isNoteFolderOption(parsedPreferences.defaultFolder)
-        ? parsedPreferences.defaultFolder
-        : defaultNotePreferences.defaultFolder,
+      defaultFolderId:
+        typeof parsedPreferences.defaultFolderId === "string"
+          ? parsedPreferences.defaultFolderId
+          : defaultNotePreferences.defaultFolderId,
     };
   } catch {
     return defaultNotePreferences;
@@ -86,9 +77,9 @@ export function useNotePreferences() {
     };
   }, []);
 
-  function setDefaultFolder(defaultFolder: NoteFolderOption) {
+  function setDefaultFolderId(defaultFolderId: string) {
     const nextPreferences = {
-      defaultFolder,
+      defaultFolderId,
     };
 
     setPreferences(nextPreferences);
@@ -103,6 +94,6 @@ export function useNotePreferences() {
   return {
     preferences,
     resetPreferences,
-    setDefaultFolder,
+    setDefaultFolderId,
   };
 }

@@ -36,11 +36,18 @@ const noteSchema = new Schema(
       default: "",
     },
 
+    folderId: {
+      type: Schema.Types.ObjectId,
+      ref: "Folder",
+      default: null,
+      index: true,
+    },
+
     folderName: {
       type: String,
       trim: true,
       maxlength: NOTE_VALIDATION.folderNameMaxLength,
-      default: "Notes",
+      default: "Unfiled",
     },
 
     tags: {
@@ -82,6 +89,12 @@ const noteSchema = new Schema(
 
 noteSchema.index({
   userId: 1,
+  updatedAt: -1,
+});
+
+noteSchema.index({
+  userId: 1,
+  folderId: 1,
   updatedAt: -1,
 });
 

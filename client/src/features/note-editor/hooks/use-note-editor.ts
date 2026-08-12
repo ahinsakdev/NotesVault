@@ -7,7 +7,6 @@ import { ROUTES } from "@/app/routes";
 import { createNote, updateNote } from "@/features/notes/api/notes.api";
 import { notesQueryKeys } from "@/features/notes/hooks/use-notes";
 import type { Note } from "@/features/notes/types/note.types";
-import { useNotePreferences } from "@/features/settings/hooks/use-note-preferences";
 
 import type {
   NoteEditorSaveState,
@@ -19,25 +18,25 @@ import {
 } from "../utils/note-editor.utils";
 
 type UseNoteEditorOptions = {
+  initialValues?: NoteEditorValues;
   note: Note | null;
   isNewNote: boolean;
 };
 
 const AUTOSAVE_DELAY_MS = 1_500;
 
-export function useNoteEditor({ isNewNote, note }: UseNoteEditorOptions) {
+export function useNoteEditor({
+  initialValues,
+  isNewNote,
+  note,
+}: UseNoteEditorOptions) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  const { preferences: notePreferences } = useNotePreferences();
 
   const [values, setValues] = useState<NoteEditorValues>(() =>
     note
       ? createNoteEditorValues(note)
-      : {
-          ...createEmptyNoteEditorValues(),
-          folderName: notePreferences.defaultFolder,
-        },
+      : initialValues ?? createEmptyNoteEditorValues(),
   );
 
   const [saveState, setSaveState] = useState<NoteEditorSaveState>("idle");
@@ -88,6 +87,16 @@ export function useNoteEditor({ isNewNote, note }: UseNoteEditorOptions) {
     [updateValues],
   );
 
+  const updateFields = useCallback(
+    (updates: Partial<NoteEditorValues>) => {
+      updateValues((currentValues) => ({
+        ...currentValues,
+        ...updates,
+      }));
+    },
+    [updateValues],
+  );
+
   const updateContent = useCallback(
     (content: JSONContent) => {
       updateValues((currentValues) => ({
@@ -124,9 +133,14 @@ export function useNoteEditor({ isNewNote, note }: UseNoteEditorOptions) {
       try {
         const persistedNoteId = persistedNoteIdRef.current;
 
+        const noteInput = {
+          ...valuesToSave,
+          folderId: valuesToSave.folderId || null,
+        };
+
         const savedNote = persistedNoteId
-          ? await updateNote(persistedNoteId, valuesToSave)
-          : await createNote(valuesToSave);
+          ? await updateNote(persistedNoteId, noteInput)
+          : await createNote(noteInput);
 
         if (saveRequestId !== saveRequestIdRef.current) {
           return;
@@ -215,5 +229,6 @@ export function useNoteEditor({ isNewNote, note }: UseNoteEditorOptions) {
     saveNote,
     updateContent,
     updateField,
+    updateFields,
   };
 }

@@ -1,4 +1,5 @@
 import { AppError } from "../../../shared/errors/app-error.js";
+import { FolderModel } from "../../folders/models/folder.model.js";
 import type { NoteAccent } from "../constants/note.constants.js";
 import { NoteModel } from "../models/note.model.js";
 import type { CreateNoteInput } from "../schemas/create-note.schema.js";
@@ -16,11 +17,35 @@ function createNoteNotFoundError(): AppError {
   return new AppError(404, "Note was not found", "NOTE_NOT_FOUND");
 }
 
+function createFolderNotFoundError(): AppError {
+  return new AppError(404, "Folder was not found", "FOLDER_NOT_FOUND");
+}
+
+async function resolveFolderForUser(
+  userId: string,
+  folderId: string,
+) {
+  const folder = await FolderModel.findOne({
+    _id: folderId,
+    userId,
+  });
+
+  if (!folder) {
+    throw createFolderNotFoundError();
+  }
+
+  return folder;
+}
+
 export async function createNote(
   userId: string,
   input: CreateNoteInput,
 ): Promise<SerializedNote> {
   const content = input.content as NoteContentNode;
+
+  const folder = input.folderId
+    ? await resolveFolderForUser(userId, input.folderId)
+    : null;
 
   const note = await NoteModel.create({
     userId,
@@ -31,7 +56,11 @@ export async function createNote(
 
     preview: createNotePreview(content),
 
-    folderName: normalizeNoteFolderName(input.folderName),
+    folderId: folder?._id ?? null,
+
+    folderName: folder
+      ? folder.name
+      : normalizeNoteFolderName(input.folderName),
 
     tags: normalizeNoteTags(input.tags),
 
@@ -159,7 +188,17 @@ export async function updateNoteForUser(
     note.preview = createNotePreview(content);
   }
 
-  if (input.folderName !== undefined) {
+  if (input.folderId !== undefined) {
+    if (input.folderId === null) {
+      note.folderId = null;
+      note.folderName = "Unfiled";
+    } else {
+      const folder = await resolveFolderForUser(userId, input.folderId);
+
+      note.folderId = folder._id;
+      note.folderName = folder.name;
+    }
+  } else if (input.folderName !== undefined) {
     note.folderName = normalizeNoteFolderName(input.folderName);
   }
 

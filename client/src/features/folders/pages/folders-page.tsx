@@ -1,18 +1,41 @@
 import { Folder, Plus } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NotesErrorState } from "@/features/notes/components/notes-error-state";
 import { useNotes } from "@/features/notes/hooks/use-notes";
 
+import { CreateFolderDialog } from "../components/create-folder-dialog";
 import { FoldersGrid } from "../components/folders-grid";
-import { getFoldersFromNotes } from "../utils/folder.utils";
+import { useFolders } from "../hooks/use-folders";
+import { createFolderSummaries } from "../utils/folder.utils";
 
 export function FoldersPage() {
-  const { data: notes = [], isError, isLoading, refetch } = useNotes();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const folders = useMemo(() => getFoldersFromNotes(notes), [notes]);
+  const foldersQuery = useFolders();
+  const notesQuery = useNotes();
+
+  const folders = useMemo(
+    () =>
+      createFolderSummaries(
+        foldersQuery.data ?? [],
+        notesQuery.data ?? [],
+      ),
+    [foldersQuery.data, notesQuery.data],
+  );
+
+  const isLoading =
+    foldersQuery.isLoading || notesQuery.isLoading;
+
+  const isError =
+    foldersQuery.isError || notesQuery.isError;
+
+  function handleRetry() {
+    void foldersQuery.refetch();
+    void notesQuery.refetch();
+  }
 
   return (
     <div className="space-y-6">
@@ -36,9 +59,8 @@ export function FoldersPage() {
         </div>
 
         <Button
-          disabled
           leftIcon={<Plus aria-hidden="true" className="size-4" />}
-          title="Folder creation is not available yet"
+          onClick={() => setIsCreateDialogOpen(true)}
         >
           New folder
         </Button>
@@ -58,11 +80,7 @@ export function FoldersPage() {
           ))}
         </div>
       ) : isError ? (
-        <NotesErrorState
-          onRetry={() => {
-            void refetch();
-          }}
-        />
+        <NotesErrorState onRetry={handleRetry} />
       ) : folders.length === 0 ? (
         <EmptyState
           description="Create folders to organize related notes into focused collections."
@@ -72,6 +90,11 @@ export function FoldersPage() {
       ) : (
         <FoldersGrid folders={folders} />
       )}
+
+      <CreateFolderDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+      />
     </div>
   );
 }

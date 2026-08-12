@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { useNavigate } from "react-router";
 
 import { ROUTES } from "@/app/routes";
@@ -16,6 +17,7 @@ import { NotesSkeleton } from "./notes-skeleton";
 import { NotesToolbar } from "./notes-toolbar";
 
 type NotesCollectionPageProps = {
+  actions?: ReactNode;
   description: string;
   emptyDescription: string;
   emptyIcon: LucideIcon;
@@ -29,6 +31,7 @@ type NotesCollectionPageProps = {
 };
 
 export function NotesCollectionPage({
+  actions,
   description,
   emptyDescription,
   emptyIcon,
@@ -62,6 +65,7 @@ export function NotesCollectionPage({
   return (
     <div className="space-y-6">
       <NotesHeader
+        actions={actions}
         description={description}
         isLoading={isLoading}
         noteCount={filteredNotes.length}
