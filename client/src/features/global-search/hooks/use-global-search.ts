@@ -1,32 +1,34 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { useNotes } from "@/features/notes/hooks/use-notes";
+import { useSearchNotes } from "@/features/search/hooks/use-search-notes";
 
 import type { GlobalSearchStatus } from "../types/global-search.types";
-import { searchNotesGlobally } from "../utils/global-search.utils";
+
+const GLOBAL_SEARCH_RESULT_LIMIT = 8;
 
 export function useGlobalSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const { data: notes = [], isError, isLoading, refetch } = useNotes();
+  const searchQuery = useSearchNotes({
+    query,
+    sort: "relevance",
+    limit: GLOBAL_SEARCH_RESULT_LIMIT,
+  });
 
-  const results = useMemo(
-    () => searchNotesGlobally(notes, query),
-    [notes, query],
-  );
+  const results = searchQuery.data ?? [];
 
   const status = useMemo<GlobalSearchStatus>(() => {
     if (!query.trim()) {
       return "idle";
     }
 
-    if (isLoading) {
+    if (searchQuery.isLoading) {
       return "loading";
     }
 
-    if (isError) {
+    if (searchQuery.isError) {
       return "error";
     }
 
@@ -35,7 +37,12 @@ export function useGlobalSearch() {
     }
 
     return "ready";
-  }, [isError, isLoading, query, results.length]);
+  }, [
+    query,
+    results.length,
+    searchQuery.isError,
+    searchQuery.isLoading,
+  ]);
 
   const openSearch = useCallback(() => {
     setIsOpen(true);
@@ -78,7 +85,7 @@ export function useGlobalSearch() {
     isOpen,
     openSearch,
     query,
-    refetch,
+    refetch: searchQuery.refetch,
     results,
     selectedIndex,
     selectNextResult,

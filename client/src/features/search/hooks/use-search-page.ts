@@ -1,19 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 
-import type {
-  GlobalSearchResult,
-  GlobalSearchStatus,
-} from "@/features/global-search/types/global-search.types";
-import { searchNotesGlobally } from "@/features/global-search/utils/global-search.utils";
+import type { GlobalSearchStatus } from "@/features/global-search/types/global-search.types";
 import { useNotes } from "@/features/notes/hooks/use-notes";
-import type { Note } from "@/features/notes/types/note.types";
 import { getNotesFilterOptions } from "@/features/notes/utils/note.utils";
 
-import type {
-  SearchPageFilters,
-  SearchPageSortOption,
-} from "../types/search.types";
+import type { SearchPageFilters } from "../types/search.types";
+import { useSearchNotes } from "./use-search-notes";
 
 const initialFilters: SearchPageFilters = {
   folder: "all",
@@ -24,113 +17,40 @@ const initialFilters: SearchPageFilters = {
   pinnedOnly: false,
 };
 
-function sortSearchResults(
-  results: GlobalSearchResult[],
-  sort: SearchPageSortOption,
-): GlobalSearchResult[] {
-  if (sort === "relevance") {
-    return results;
-  }
-
-  return [...results].sort((firstResult, secondResult) => {
-    const first = firstResult.note;
-    const second = secondResult.note;
-
-    switch (sort) {
-      case "updated-desc":
-        return (
-          new Date(second.updatedAt).getTime() -
-          new Date(first.updatedAt).getTime()
-        );
-
-      case "updated-asc":
-        return (
-          new Date(first.updatedAt).getTime() -
-          new Date(second.updatedAt).getTime()
-        );
-
-      case "created-desc":
-        return (
-          new Date(second.createdAt).getTime() -
-          new Date(first.createdAt).getTime()
-        );
-
-      case "created-asc":
-        return (
-          new Date(first.createdAt).getTime() -
-          new Date(second.createdAt).getTime()
-        );
-
-      case "title-asc":
-        return first.title.localeCompare(second.title);
-
-      case "title-desc":
-        return second.title.localeCompare(first.title);
-
-      default:
-        return 0;
-    }
-  });
-}
-
-function matchesSearchFilters(note: Note, filters: SearchPageFilters): boolean {
-  if (filters.folder !== "all" && note.folderName !== filters.folder) {
-    return false;
-  }
-
-  if (filters.tag !== "all" && !note.tags.includes(filters.tag)) {
-    return false;
-  }
-
-  if (filters.favoritesOnly && !note.isFavorite) {
-    return false;
-  }
-
-  if (filters.pinnedOnly && !note.isPinned) {
-    return false;
-  }
-
-  return true;
-}
-
 export function useSearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<SearchPageFilters>(initialFilters);
 
   const query = searchParams.get("q") ?? "";
 
-  const { data: notes = [], isError, isLoading, refetch } = useNotes();
+  const { data: notes = [] } = useNotes();
 
-  const filterOptions = useMemo(() => getNotesFilterOptions(notes), [notes]);
-
-  const rankedResults = useMemo(
-    () => searchNotesGlobally(notes, query, Number.MAX_SAFE_INTEGER),
-    [notes, query],
+  const filterOptions = useMemo(
+    () => getNotesFilterOptions(notes),
+    [notes],
   );
 
-  const results = useMemo(() => {
-    const filteredResults = rankedResults.filter((result) =>
-      matchesSearchFilters(result.note, filters),
-    );
+  const searchQuery = useSearchNotes({
+    query,
+    folder: filters.folder === "all" ? undefined : filters.folder,
+    tag: filters.tag === "all" ? undefined : filters.tag,
+    sort: filters.sort,
+    favoritesOnly: filters.favoritesOnly || undefined,
+    pinnedOnly: filters.pinnedOnly || undefined,
+  });
 
-    return sortSearchResults(filteredResults, filters.sort);
-  }, [filters, rankedResults]);
-
-  const resultNotes = useMemo(
-    () => results.map((result) => result.note),
-    [results],
-  );
+  const results = searchQuery.data ?? [];
 
   const status = useMemo<GlobalSearchStatus>(() => {
     if (!query.trim()) {
       return "idle";
     }
 
-    if (isLoading) {
+    if (searchQuery.isLoading) {
       return "loading";
     }
 
-    if (isError) {
+    if (searchQuery.isError) {
       return "error";
     }
 
@@ -139,7 +59,12 @@ export function useSearchPage() {
     }
 
     return "ready";
-  }, [isError, isLoading, query, results.length]);
+  }, [
+    query,
+    results.length,
+    searchQuery.isError,
+    searchQuery.isLoading,
+  ]);
 
   const hasActiveFilters =
     filters.folder !== "all" ||
@@ -180,7 +105,7 @@ export function useSearchPage() {
     }));
   }, []);
 
-  const setSort = useCallback((sort: SearchPageSortOption) => {
+  const setSort = useCallback((sort: SearchPageFilters["sort"]) => {
     setFilters((currentFilters) => ({
       ...currentFilters,
       sort,
@@ -217,6 +142,7 @@ export function useSearchPage() {
 
   const clearSearch = useCallback(() => {
     setSearchParams({}, { replace: true });
+
     setFilters((currentFilters) => ({
       ...initialFilters,
       view: currentFilters.view,
@@ -230,9 +156,7 @@ export function useSearchPage() {
     filters,
     hasActiveFilters,
     query,
-    rankedResults,
-    refetch,
-    resultNotes,
+    refetch: searchQuery.refetch,
     results,
     setFavoritesOnly,
     setFolder,

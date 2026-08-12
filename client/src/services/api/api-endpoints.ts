@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
   notes: {
     list: "/api/v1/notes",
     create: "/api/v1/notes",
+    search: "/api/v1/notes/search",
     archived: "/api/v1/notes/archived",
     trash: "/api/v1/notes/trash",
     byId: (noteId: string) => `/api/v1/notes/${noteId}`,

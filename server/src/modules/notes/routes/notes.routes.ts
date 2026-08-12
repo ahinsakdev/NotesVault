@@ -11,11 +11,13 @@ import {
   getNotesController,
   permanentlyDeleteNoteController,
   restoreNoteController,
+  searchNotesController,
   updateNoteController,
   getTrashNotesController,
 } from "../controllers/notes.controller.js";
 import { createNoteSchema } from "../schemas/create-note.schema.js";
 import { noteIdParamsSchema } from "../schemas/note-id-params.schema.js";
+import { searchNotesQuerySchema } from "../schemas/search-notes-query.schema.js";
 import { updateNoteSchema } from "../schemas/update-note.schema.js";
 
 export const notesRouter = Router();
@@ -34,6 +36,12 @@ notesRouter.get(
 );
 
 notesRouter.get(
+  "/search",
+  validateRequest(searchNotesQuerySchema, "query"),
+  searchNotesController,
+);
+
+notesRouter.get(
   "/archived",
   getArchivedNotesController,
 );
@@ -49,6 +57,7 @@ notesRouter.patch(
   "/:noteId/restore",
   validateRequest(noteIdParamsSchema, "params"),
   restoreNoteController,
+  searchNotesController,
 );
 
 notesRouter.delete(

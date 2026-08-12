@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import type { AuthenticatedRequest } from "../../auth/types/authenticated-request.js";
 import type { CreateNoteInput } from "../schemas/create-note.schema.js";
 import type { NoteIdParams } from "../schemas/note-id-params.schema.js";
+import type { SearchNotesQuery } from "../schemas/search-notes-query.schema.js";
 import type { UpdateNoteInput } from "../schemas/update-note.schema.js";
 import {
   createNote,
@@ -14,6 +15,7 @@ import {
   getTrashNotesForUser,
   permanentlyDeleteNoteForUser,
   restoreNoteForUser,
+  searchNotesForUser,
   updateNoteForUser,
 } from "../services/notes.service.js";
 
@@ -28,6 +30,24 @@ export async function createNoteController(
 
   response.status(201).json({
     note,
+  });
+}
+
+
+export async function searchNotesController(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const authenticatedRequest = request as AuthenticatedRequest;
+  const query = request.query as unknown as SearchNotesQuery;
+
+  const results = await searchNotesForUser(
+    authenticatedRequest.user.id,
+    query,
+  );
+
+  response.status(200).json({
+    results,
   });
 }
 
