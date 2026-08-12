@@ -2,7 +2,12 @@ import type { JSONContent } from "@tiptap/react";
 
 import type { Note } from "@/features/notes/types/note.types";
 
-export type NoteEditorSaveState = "idle" | "unsaved" | "saving" | "saved";
+export type NoteEditorSaveState =
+  | "idle"
+  | "unsaved"
+  | "saving"
+  | "saved"
+  | "error";
 
 export type NoteEditorValues = {
   title: string;

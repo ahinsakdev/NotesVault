@@ -1,7 +1,4 @@
 import { ArrowLeft, FileText, Save, Share2 } from "lucide-react";
-import { useNavigate } from "react-router";
-
-import { ROUTES } from "@/app/routes";
 import { Button } from "@/components/ui/button";
 
 import type { NoteEditorSaveState } from "../types/note-editor.types";
@@ -20,6 +17,7 @@ type NoteEditorHeaderProps = {
   onDuplicate: () => void;
   onExport: () => void;
   onFavoriteChange: (value: boolean) => void;
+  onNavigateBack: () => void;
   onPinnedChange: (value: boolean) => void;
   onPrint: () => void;
   onSave: () => void;
@@ -37,6 +35,7 @@ export function NoteEditorHeader({
   onDuplicate,
   onExport,
   onFavoriteChange,
+  onNavigateBack,
   onPinnedChange,
   onPrint,
   onSave,
@@ -44,14 +43,12 @@ export function NoteEditorHeader({
   onTrash,
   saveState,
 }: NoteEditorHeaderProps) {
-  const navigate = useNavigate();
-
   return (
     <header className="relative flex min-h-14 shrink-0 items-center gap-2 border-b border-border bg-surface px-3 py-2.5 sm:min-h-16 sm:gap-3 sm:px-5 sm:py-3">
       <button
         aria-label="Back to all notes"
         className="notesvault-focus-ring flex size-8 shrink-0 items-center justify-center border border-transparent text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:border-border hover:bg-secondary hover:text-foreground sm:size-9"
-        onClick={() => navigate(ROUTES.notes)}
+        onClick={onNavigateBack}
         title="Back to all notes"
         type="button"
       >

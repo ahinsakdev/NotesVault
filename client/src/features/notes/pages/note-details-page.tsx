@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { FileQuestion } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -11,11 +12,14 @@ import { NoteEditorHeader } from "@/features/note-editor/components/note-editor-
 import { NoteEditorMain } from "@/features/note-editor/components/note-editor-main";
 import { NoteEditorMetadata } from "@/features/note-editor/components/note-editor-metadata";
 import { useNoteEditor } from "@/features/note-editor/hooks/use-note-editor";
+import { useUnsavedNoteWarning } from "@/features/note-editor/hooks/use-unsaved-note-warning";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/utils/cn";
 
+import { createNote } from "../api/notes.api";
 import { NotesErrorState } from "../components/notes-error-state";
 import { useNote } from "../hooks/use-note";
+import { notesQueryKeys } from "../hooks/use-notes";
 import { useMoveNoteToTrash } from "../hooks/use-move-note-to-trash";
 import { useUpdateNoteState } from "../hooks/use-update-note-state";
 import type { Note } from "../types/note.types";
@@ -29,9 +33,11 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
   const exportHandlerRef = useRef<(() => void) | null>(null);
 
   const [isTrashDialogOpen, setIsTrashDialogOpen] = useState(false);
+  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
 
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const moveNoteToTrashMutation = useMoveNoteToTrash();
   const updateNoteStateMutation = useUpdateNoteState();
 
@@ -49,6 +55,13 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
       note,
     });
 
+  const hasUnsafeChanges =
+    saveState === "unsaved" ||
+    saveState === "saving" ||
+    saveState === "error";
+
+  useUnsavedNoteWarning(hasUnsafeChanges);
+
   const handleExportReady = useCallback((handler: () => void) => {
     exportHandlerRef.current = handler;
   }, []);
@@ -62,12 +75,61 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
     enterFocusMode();
   }
 
-  function handleDuplicate() {
-    showToast({
-      message: "Duplicate note is not available yet.",
-      title: "Duplicate note",
-      variant: "info",
-    });
+  async function handleDuplicate() {
+    if (!note) {
+      showToast({
+        message: "Save this note before creating a duplicate.",
+        title: "Unable to duplicate note",
+        variant: "info",
+      });
+      return;
+    }
+
+    if (hasUnsafeChanges) {
+      showToast({
+        message: "Wait for the current note to finish saving before duplicating it.",
+        title: "Save note first",
+        variant: "info",
+      });
+      return;
+    }
+
+    try {
+      const duplicatedNote = await createNote({
+        title: note.title.trim()
+          ? `${note.title} (Copy)`
+          : "Untitled note (Copy)",
+        content: note.content,
+        folderName: note.folderName,
+        tags: [...note.tags],
+        isPinned: false,
+        isFavorite: false,
+        isArchived: false,
+      });
+
+      queryClient.setQueryData(
+        notesQueryKeys.detail(duplicatedNote.id),
+        duplicatedNote,
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: notesQueryKeys.all,
+      });
+
+      showToast({
+        message: "A copy of this note was created successfully.",
+        title: "Note duplicated",
+        variant: "success",
+      });
+
+      navigate(ROUTES.noteDetails.replace(":noteId", duplicatedNote.id));
+    } catch {
+      showToast({
+        message: "The note could not be duplicated. Please try again.",
+        title: "Unable to duplicate note",
+        variant: "error",
+      });
+    }
   }
 
   function handleExport() {
@@ -78,12 +140,44 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
     window.print();
   }
 
+  function handleNavigateBack() {
+    if (hasUnsafeChanges) {
+      setIsLeaveDialogOpen(true);
+      return;
+    }
+
+    navigate(ROUTES.notes);
+  }
+
+  function handleConfirmLeave() {
+    setIsLeaveDialogOpen(false);
+    navigate(ROUTES.notes);
+  }
+
   function handleTrash() {
+    if (hasUnsafeChanges) {
+      showToast({
+        message: "Wait for the current note to finish saving before moving it to Trash.",
+        title: "Save note first",
+        variant: "info",
+      });
+      return;
+    }
+
     setIsTrashDialogOpen(true);
   }
 
   async function handleArchiveChange(value: boolean) {
     if (updateNoteStateMutation.isPending) {
+      return;
+    }
+
+    if (hasUnsafeChanges) {
+      showToast({
+        message: "Wait for the current note to finish saving before changing its archive state.",
+        title: "Save note first",
+        variant: "info",
+      });
       return;
     }
 
@@ -178,6 +272,7 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
           onDuplicate={handleDuplicate}
           onExport={handleExport}
           onFavoriteChange={(value) => updateField("isFavorite", value)}
+          onNavigateBack={handleNavigateBack}
           onPinnedChange={(value) => updateField("isPinned", value)}
           onPrint={handlePrint}
           onSave={() => {
@@ -221,6 +316,17 @@ function NoteEditorContent({ isNewNote, note }: NoteEditorContentProps) {
           ) : null}
         </div>
       </div>
+
+      <ConfirmDialog
+        cancelLabel="Keep editing"
+        confirmLabel="Leave"
+        description="Your latest changes have not been saved. If you leave now, those changes may be lost."
+        isOpen={isLeaveDialogOpen}
+        onCancel={() => setIsLeaveDialogOpen(false)}
+        onConfirm={handleConfirmLeave}
+        title="Leave without saving?"
+        variant="danger"
+      />
 
       <ConfirmDialog
         cancelLabel="Cancel"

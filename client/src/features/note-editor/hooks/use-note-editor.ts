@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { JSONContent } from "@tiptap/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
@@ -23,6 +23,8 @@ type UseNoteEditorOptions = {
   isNewNote: boolean;
 };
 
+const AUTOSAVE_DELAY_MS = 1_500;
+
 export function useNoteEditor({ isNewNote, note }: UseNoteEditorOptions) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -38,98 +40,173 @@ export function useNoteEditor({ isNewNote, note }: UseNoteEditorOptions) {
         },
   );
 
-  const latestContentRef = useRef<JSONContent>(values.content);
+  const [saveState, setSaveState] = useState<NoteEditorSaveState>("idle");
 
+  const valuesRef = useRef(values);
+  const saveStateRef = useRef<NoteEditorSaveState>("idle");
   const revisionRef = useRef(0);
   const saveRequestIdRef = useRef(0);
   const persistedNoteIdRef = useRef<string | null>(note?.id ?? null);
+  const saveInProgressRef = useRef(false);
+  const saveQueuedRef = useRef(false);
 
-  const [saveState, setSaveState] = useState<NoteEditorSaveState>("idle");
-
-  function markChanged() {
-    revisionRef.current += 1;
-    setSaveState("unsaved");
-  }
-
-  function updateValues(
-    updater: (currentValues: NoteEditorValues) => NoteEditorValues,
-  ) {
-    setValues((currentValues) => updater(currentValues));
-    markChanged();
-  }
-
-  function updateField<Key extends keyof NoteEditorValues>(
-    field: Key,
-    value: NoteEditorValues[Key],
-  ) {
-    updateValues((currentValues) => ({
-      ...currentValues,
-      [field]: value,
-    }));
-  }
-
-  const updateContent = useCallback((content: JSONContent) => {
-    latestContentRef.current = content;
-
-    revisionRef.current += 1;
-
-    setSaveState((currentSaveState) =>
-      currentSaveState === "unsaved" ? currentSaveState : "unsaved",
-    );
+  const updateSaveState = useCallback((state: NoteEditorSaveState) => {
+    saveStateRef.current = state;
+    setSaveState(state);
   }, []);
 
-  async function saveNote() {
-    const revisionAtSaveStart = revisionRef.current;
-    const saveRequestId = ++saveRequestIdRef.current;
+  const markChanged = useCallback(() => {
+    revisionRef.current += 1;
+    updateSaveState("unsaved");
+  }, [updateSaveState]);
 
-    const valuesToSave: NoteEditorValues = {
-      ...values,
-      content: latestContentRef.current,
-    };
+  const updateValues = useCallback(
+    (updater: (currentValues: NoteEditorValues) => NoteEditorValues) => {
+      setValues((currentValues) => {
+        const nextValues = updater(currentValues);
 
-    setSaveState("saving");
+        valuesRef.current = nextValues;
 
-    try {
-      const persistedNoteId = persistedNoteIdRef.current;
-
-      const savedNote = persistedNoteId
-        ? await updateNote(persistedNoteId, valuesToSave)
-        : await createNote(valuesToSave);
-
-      if (saveRequestId !== saveRequestIdRef.current) {
-        return;
-      }
-
-      persistedNoteIdRef.current = savedNote.id;
-
-      queryClient.setQueryData(notesQueryKeys.detail(savedNote.id), savedNote);
-
-      await queryClient.invalidateQueries({
-        queryKey: notesQueryKeys.all,
+        return nextValues;
       });
 
-      if (!persistedNoteId) {
-        navigate(ROUTES.noteDetails.replace(":noteId", savedNote.id), {
-          replace: true,
+      markChanged();
+    },
+    [markChanged],
+  );
+
+  const updateField = useCallback(
+    <Key extends keyof NoteEditorValues>(
+      field: Key,
+      value: NoteEditorValues[Key],
+    ) => {
+      updateValues((currentValues) => ({
+        ...currentValues,
+        [field]: value,
+      }));
+    },
+    [updateValues],
+  );
+
+  const updateContent = useCallback(
+    (content: JSONContent) => {
+      updateValues((currentValues) => ({
+        ...currentValues,
+        content,
+      }));
+    },
+    [updateValues],
+  );
+
+  const saveNote = useCallback(async () => {
+      if (saveInProgressRef.current) {
+        saveQueuedRef.current = true;
+        return;
+      }
+
+      if (
+        saveStateRef.current !== "unsaved" &&
+        saveStateRef.current !== "error" &&
+        persistedNoteIdRef.current !== null
+      ) {
+        return;
+      }
+
+      saveInProgressRef.current = true;
+      saveQueuedRef.current = false;
+
+      const revisionAtSaveStart = revisionRef.current;
+      const saveRequestId = ++saveRequestIdRef.current;
+      const valuesToSave = valuesRef.current;
+
+      updateSaveState("saving");
+
+      try {
+        const persistedNoteId = persistedNoteIdRef.current;
+
+        const savedNote = persistedNoteId
+          ? await updateNote(persistedNoteId, valuesToSave)
+          : await createNote(valuesToSave);
+
+        if (saveRequestId !== saveRequestIdRef.current) {
+          return;
+        }
+
+        persistedNoteIdRef.current = savedNote.id;
+
+        queryClient.setQueryData(
+          notesQueryKeys.detail(savedNote.id),
+          savedNote,
+        );
+
+        await queryClient.invalidateQueries({
+          queryKey: notesQueryKeys.all,
         });
+
+        if (!persistedNoteId) {
+          navigate(ROUTES.noteDetails.replace(":noteId", savedNote.id), {
+            replace: true,
+          });
+        }
+
+        if (revisionRef.current !== revisionAtSaveStart) {
+          updateSaveState("unsaved");
+          return;
+        }
+
+        updateSaveState("saved");
+      } catch {
+        if (saveRequestId === saveRequestIdRef.current) {
+          updateSaveState("error");
+        }
+
+        throw new Error("Unable to save note");
+      } finally {
+        saveInProgressRef.current = false;
+
+        if (saveQueuedRef.current) {
+          saveQueuedRef.current = false;
+          updateSaveState("unsaved");
+        }
       }
+    }, [navigate, queryClient, updateSaveState]);
 
-      if (revisionRef.current !== revisionAtSaveStart) {
-        setSaveState("unsaved");
-        return;
-      }
-
-      setSaveState("saved");
-    } catch {
-      if (saveRequestId !== saveRequestIdRef.current) {
-        return;
-      }
-
-      setSaveState("unsaved");
-
-      throw new Error("Unable to save note");
+  useEffect(() => {
+    if (saveState !== "unsaved") {
+      return;
     }
-  }
+
+    const timeoutId = window.setTimeout(() => {
+      void saveNote().catch(() => undefined);
+    }, AUTOSAVE_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [saveNote, saveState, values]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const isSaveShortcut =
+        (event.metaKey || event.ctrlKey) &&
+        !event.altKey &&
+        event.key.toLowerCase() === "s";
+
+      if (!isSaveShortcut) {
+        return;
+      }
+
+      event.preventDefault();
+
+      void saveNote().catch(() => undefined);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [saveNote]);
 
   return {
     isNewNote,
