@@ -9,6 +9,7 @@ export type DashboardStatistic = {
   description: string;
   icon: LucideIcon;
   accent: DashboardStatisticAccent;
+  to: string;
 };
 
 export type DashboardNoteAccent =

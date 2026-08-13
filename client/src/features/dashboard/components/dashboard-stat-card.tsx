@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 import { cn } from "@/utils/cn";
 
 import type { DashboardStatistic } from "../types/dashboard.types";
@@ -13,7 +15,11 @@ export function DashboardStatCard({ statistic }: DashboardStatCardProps) {
   const accentClasses = getDashboardStatisticAccentClasses(statistic.accent);
 
   return (
-    <article className="flex items-center gap-4 border border-border bg-card px-4 py-4 transition-[border-color,box-shadow] duration-[var(--motion-standard)] hover:border-border-strong hover:shadow-card">
+    <Link
+      aria-label={`View ${statistic.title.toLowerCase()}`}
+      className="group flex items-center gap-4 border border-border bg-card px-4 py-4 transition-[border-color,box-shadow] duration-[var(--motion-standard)] hover:border-border-strong hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      to={statistic.to}
+    >
       <span
         className={cn(
           "flex size-10 shrink-0 items-center justify-center",
@@ -21,7 +27,11 @@ export function DashboardStatCard({ statistic }: DashboardStatCardProps) {
           accentClasses.iconColor,
         )}
       >
-        <Icon aria-hidden="true" className="size-4.5" strokeWidth={1.8} />
+        <Icon
+          aria-hidden="true"
+          className="size-4.5 transition-transform duration-[var(--motion-standard)] group-hover:scale-105"
+          strokeWidth={1.8}
+        />
       </span>
 
       <div className="min-w-0">
@@ -42,6 +52,6 @@ export function DashboardStatCard({ statistic }: DashboardStatCardProps) {
           {statistic.description}
         </p>
       </div>
-    </article>
+    </Link>
   );
 }

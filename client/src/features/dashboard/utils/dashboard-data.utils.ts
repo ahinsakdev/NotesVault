@@ -1,6 +1,8 @@
 import { FileText, Folder, Pin, Star } from "lucide-react";
 
-import type { Note } from "@/features/notes/types/note.types";
+import { ROUTES } from "@/app/routes";
+import type { Folder as NotesVaultFolder } from "@/features/folders/types/folder.types";
+import type { Note, NoteAccent } from "@/features/notes/types/note.types";
 import { formatDate } from "@/utils/format-date";
 
 import type {
@@ -12,6 +14,14 @@ import type {
 const MAX_RECENT_NOTES = 2;
 const MAX_PINNED_NOTES = 2;
 const MAX_FOLDERS = 4;
+
+const DEFAULT_FOLDER_ACCENTS: NoteAccent[] = [
+  "purple",
+  "blue",
+  "green",
+  "orange",
+  "red",
+];
 
 function toDashboardNote(note: Note): DashboardNote {
   return {
@@ -29,12 +39,10 @@ function toDashboardNote(note: Note): DashboardNote {
 
 export function createDashboardStatistics(
   notes: Note[],
+  folders: NotesVaultFolder[],
 ): DashboardStatistic[] {
   const pinnedCount = notes.filter((note) => note.isPinned).length;
   const favoriteCount = notes.filter((note) => note.isFavorite).length;
-  const folderCount = new Set(
-    notes.map((note) => note.folderName).filter(Boolean),
-  ).size;
 
   return [
     {
@@ -44,6 +52,7 @@ export function createDashboardStatistics(
       description: "Active notes",
       icon: FileText,
       accent: "purple",
+      to: ROUTES.notes,
     },
     {
       id: "pinned",
@@ -52,6 +61,7 @@ export function createDashboardStatistics(
       description: "Kept within reach",
       icon: Pin,
       accent: "orange",
+      to: ROUTES.pinned,
     },
     {
       id: "favorites",
@@ -60,21 +70,21 @@ export function createDashboardStatistics(
       description: "Saved favorites",
       icon: Star,
       accent: "red",
+      to: ROUTES.favorites,
     },
     {
       id: "folders",
       title: "Folders",
-      value: folderCount,
+      value: folders.length,
       description: "Organized collections",
       icon: Folder,
       accent: "green",
+      to: ROUTES.folders,
     },
   ];
 }
 
-export function createRecentDashboardNotes(
-  notes: Note[],
-): DashboardNote[] {
+export function createRecentDashboardNotes(notes: Note[]): DashboardNote[] {
   return [...notes]
     .sort(
       (firstNote, secondNote) =>
@@ -85,9 +95,7 @@ export function createRecentDashboardNotes(
     .map(toDashboardNote);
 }
 
-export function createPinnedDashboardNotes(
-  notes: Note[],
-): DashboardNote[] {
+export function createPinnedDashboardNotes(notes: Note[]): DashboardNote[] {
   return notes
     .filter((note) => note.isPinned)
     .sort(
@@ -100,33 +108,36 @@ export function createPinnedDashboardNotes(
 }
 
 export function createDashboardFolders(
+  folders: NotesVaultFolder[],
   notes: Note[],
 ): DashboardFolder[] {
-  const folders = new Map<string, DashboardFolder>();
+  const noteCountByFolder = new Map<string, number>();
+  const accentByFolder = new Map<string, NoteAccent>();
 
   for (const note of notes) {
-    const folderName = note.folderName.trim();
-
-    if (!folderName) {
+    if (!note.folderId) {
       continue;
     }
 
-    const existingFolder = folders.get(folderName);
+    noteCountByFolder.set(
+      note.folderId,
+      (noteCountByFolder.get(note.folderId) ?? 0) + 1,
+    );
 
-    if (existingFolder) {
-      existingFolder.noteCount += 1;
-      continue;
+    if (!accentByFolder.has(note.folderId)) {
+      accentByFolder.set(note.folderId, note.accent);
     }
-
-    folders.set(folderName, {
-      id: note.folderId,
-      name: folderName,
-      noteCount: 1,
-      accent: note.accent,
-    });
   }
 
-  return [...folders.values()]
+  return folders
+    .map((folder, index) => ({
+      id: folder.id,
+      name: folder.name,
+      noteCount: noteCountByFolder.get(folder.id) ?? 0,
+      accent:
+        accentByFolder.get(folder.id) ??
+        DEFAULT_FOLDER_ACCENTS[index % DEFAULT_FOLDER_ACCENTS.length],
+    }))
     .sort(
       (firstFolder, secondFolder) =>
         secondFolder.noteCount - firstFolder.noteCount ||

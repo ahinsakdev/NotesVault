@@ -15,7 +15,7 @@ export function FoldersOverview({
   return (
     <section>
       <DashboardSectionHeader
-        description="Your most active note collections."
+        description="Quick access to your organized collections."
         linkLabel="View folders"
         linkTo={ROUTES.folders}
         title="Folders overview"
@@ -29,7 +29,9 @@ export function FoldersOverview({
         </div>
       ) : (
         <DashboardEmptyState
-          description="Folders you create will appear here."
+          actionLabel="Manage folders"
+          actionTo={ROUTES.folders}
+          description="Create folders to organize related notes."
           title="No folders yet"
         />
       )}

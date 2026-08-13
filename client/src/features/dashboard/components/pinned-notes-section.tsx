@@ -29,7 +29,9 @@ export function PinnedNotesSection({
         </div>
       ) : (
         <DashboardEmptyState
-          description="Notes you pin will appear here."
+          actionLabel="Browse notes"
+          actionTo={ROUTES.notes}
+          description="Pin important notes to keep them within easy reach."
           title="No pinned notes"
         />
       )}

@@ -9,13 +9,11 @@ type RecentNotesSectionProps = {
   notes: DashboardNote[];
 };
 
-export function RecentNotesSection({
-  notes,
-}: RecentNotesSectionProps) {
+export function RecentNotesSection({ notes }: RecentNotesSectionProps) {
   return (
     <section>
       <DashboardSectionHeader
-        description="Notes you recently opened or updated."
+        description="Notes you've updated most recently."
         linkLabel="View all"
         linkTo={ROUTES.recent}
         title="Recent notes"
@@ -29,7 +27,9 @@ export function RecentNotesSection({
         </div>
       ) : (
         <DashboardEmptyState
-          description="Recently opened and updated notes will appear here."
+          actionLabel="Create a note"
+          actionTo={ROUTES.noteDetails.replace(":noteId", "new")}
+          description="Your recently updated notes will appear here."
           title="No recent notes"
         />
       )}

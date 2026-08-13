@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { notesQueryKeys } from "@/features/notes/hooks/use-notes";
+
 import { deleteFolder } from "../api/folders.api";
 import { foldersQueryKeys } from "./use-folders";
 
@@ -13,9 +15,14 @@ export function useDeleteFolder() {
         queryKey: foldersQueryKeys.detail(folderId),
       });
 
-      await queryClient.invalidateQueries({
-        queryKey: foldersQueryKeys.all,
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: foldersQueryKeys.all,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: notesQueryKeys.all,
+        }),
+      ]);
     },
   });
 }

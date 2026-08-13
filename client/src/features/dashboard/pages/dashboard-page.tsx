@@ -1,10 +1,14 @@
 import { useMemo } from "react";
 
-import { RouteLoadingFallback } from "@/components/ui/route-loading-fallback";
-import { NotesErrorState } from "@/features/notes/components/notes-error-state";
+import { useFolders } from "@/features/folders/hooks/use-folders";
 import { useNotes } from "@/features/notes/hooks/use-notes";
 
+import type { Folder } from "@/features/folders/types/folder.types";
+import type { Note } from "@/features/notes/types/note.types";
+
+import { DashboardErrorState } from "../components/dashboard-error-state";
 import { DashboardHeader } from "../components/dashboard-header";
+import { DashboardLoadingState } from "../components/dashboard-loading-state";
 import { DashboardStats } from "../components/dashboard-stats";
 import { FoldersOverview } from "../components/folders-overview";
 import { PinnedNotesSection } from "../components/pinned-notes-section";
@@ -16,43 +20,43 @@ import {
   createRecentDashboardNotes,
 } from "../utils/dashboard-data.utils";
 
+const EMPTY_NOTES: Note[] = [];
+const EMPTY_FOLDERS: Folder[] = [];
+
 export function DashboardPage() {
-  const {
-    data: notes = [],
-    isError,
-    isLoading,
-    refetch,
-  } = useNotes();
+  const notesQuery = useNotes();
+  const foldersQuery = useFolders();
+
+  const notes = notesQuery.data ?? EMPTY_NOTES;
+  const folders = foldersQuery.data ?? EMPTY_FOLDERS;
 
   const statistics = useMemo(
-    () => createDashboardStatistics(notes),
-    [notes],
+    () => createDashboardStatistics(notes, folders),
+    [folders, notes],
   );
 
-  const recentNotes = useMemo(
-    () => createRecentDashboardNotes(notes),
-    [notes],
+  const recentNotes = useMemo(() => createRecentDashboardNotes(notes), [notes]);
+
+  const pinnedNotes = useMemo(() => createPinnedDashboardNotes(notes), [notes]);
+
+  const dashboardFolders = useMemo(
+    () => createDashboardFolders(folders, notes),
+    [folders, notes],
   );
 
-  const pinnedNotes = useMemo(
-    () => createPinnedDashboardNotes(notes),
-    [notes],
-  );
-
-  const folders = useMemo(
-    () => createDashboardFolders(notes),
-    [notes],
-  );
-
-  if (isLoading) {
-    return <RouteLoadingFallback />;
+  if (notesQuery.isLoading || foldersQuery.isLoading) {
+    return <DashboardLoadingState />;
   }
 
-  if (isError) {
+  if (notesQuery.isError || foldersQuery.isError) {
     return (
-      <NotesErrorState
+      <DashboardErrorState
+        isRetrying={notesQuery.isFetching || foldersQuery.isFetching}
         onRetry={() => {
-          void refetch();
+          void Promise.all([
+            notesQuery.isError ? notesQuery.refetch() : Promise.resolve(),
+            foldersQuery.isError ? foldersQuery.refetch() : Promise.resolve(),
+          ]);
         }}
       />
     );
@@ -69,7 +73,7 @@ export function DashboardPage() {
         <PinnedNotesSection notes={pinnedNotes} />
       </div>
 
-      <FoldersOverview folders={folders} />
+      <FoldersOverview folders={dashboardFolders} />
     </div>
   );
 }
