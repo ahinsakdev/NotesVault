@@ -49,7 +49,7 @@ export function ThemeSelector() {
           <button
             aria-pressed={isSelected}
             className={cn(
-              "relative flex min-h-24 flex-col items-start justify-between border px-4 py-3 text-left transition-colors",
+              "notesvault-focus-ring relative flex min-h-24 flex-col items-start justify-between border px-4 py-3 text-left transition-colors",
               isSelected
                 ? "border-primary bg-surface-subtle text-foreground"
                 : "border-border bg-background text-muted-foreground hover:bg-secondary hover:text-foreground",

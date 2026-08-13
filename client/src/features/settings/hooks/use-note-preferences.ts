@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { getLocalStorageItem, setLocalStorageItem } from "@/utils/browser-storage";
+
 import type { NotePreferences } from "../types/note-preferences.types";
 
 const NOTE_PREFERENCES_STORAGE_KEY = "notesvault-note-preferences";
@@ -14,7 +16,7 @@ function loadNotePreferences(): NotePreferences {
     return defaultNotePreferences;
   }
 
-  const storedPreferences = window.localStorage.getItem(
+  const storedPreferences = getLocalStorageItem(
     NOTE_PREFERENCES_STORAGE_KEY,
   );
 
@@ -43,7 +45,7 @@ function saveNotePreferences(preferences: NotePreferences) {
     return;
   }
 
-  window.localStorage.setItem(
+  setLocalStorageItem(
     NOTE_PREFERENCES_STORAGE_KEY,
     JSON.stringify(preferences),
   );

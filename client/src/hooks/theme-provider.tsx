@@ -13,6 +13,10 @@ import {
   isThemePreference,
 } from "@/lib/theme";
 import type { ResolvedTheme, ThemePreference } from "@/types/theme.types";
+import {
+  getLocalStorageItem,
+  setLocalStorageItem,
+} from "@/utils/browser-storage";
 
 import { ThemeContext } from "./theme-context";
 
@@ -21,7 +25,7 @@ function getStoredTheme(): ThemePreference {
     return "system";
   }
 
-  const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+  const storedTheme = getLocalStorageItem(THEME_STORAGE_KEY);
 
   return isThemePreference(storedTheme) ? storedTheme : "system";
 }
@@ -87,7 +91,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   }, [theme]);
 
   const setTheme = useCallback((nextTheme: ThemePreference) => {
-    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    setLocalStorageItem(THEME_STORAGE_KEY, nextTheme);
     setThemeState(nextTheme);
   }, []);
 

@@ -1,5 +1,12 @@
 import { Router } from "express";
 
+import {
+  changePasswordRateLimiter,
+  forgotPasswordRateLimiter,
+  loginRateLimiter,
+  resetPasswordRateLimiter,
+  signupRateLimiter,
+} from "../../../shared/middleware/auth-rate-limiters.js";
 import { validateRequest } from "../../../shared/middleware/validate-request.js";
 import {
   changePassword,
@@ -21,9 +28,19 @@ import { updateProfileSchema } from "../schemas/update-profile.schema.js";
 
 export const authRouter = Router();
 
-authRouter.post("/signup", validateRequest(signupSchema), signup);
+authRouter.post(
+  "/signup",
+  signupRateLimiter,
+  validateRequest(signupSchema),
+  signup,
+);
 
-authRouter.post("/login", validateRequest(loginSchema), login);
+authRouter.post(
+  "/login",
+  loginRateLimiter,
+  validateRequest(loginSchema),
+  login,
+);
 
 authRouter.get("/me", authenticate, getCurrentUser);
 
@@ -37,6 +54,7 @@ authRouter.patch(
 authRouter.patch(
   "/password",
   authenticate,
+  changePasswordRateLimiter,
   validateRequest(changePasswordSchema),
   changePassword,
 );
@@ -45,12 +63,14 @@ authRouter.post("/logout", logout);
 
 authRouter.post(
   "/forgot-password",
+  forgotPasswordRateLimiter,
   validateRequest(forgotPasswordSchema),
   forgotPassword,
 );
 
 authRouter.post(
   "/reset-password",
+  resetPasswordRateLimiter,
   validateRequest(resetPasswordSchema),
   resetPassword,
 );

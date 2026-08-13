@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { getLocalStorageItem, setLocalStorageItem } from "@/utils/browser-storage";
+
 import type { EditorPreferences } from "../types/editor-preferences.types";
 
 const EDITOR_PREFERENCES_STORAGE_KEY = "notesvault-editor-preferences";
@@ -14,7 +16,7 @@ function loadEditorPreferences(): EditorPreferences {
     return defaultEditorPreferences;
   }
 
-  const storedPreferences = window.localStorage.getItem(
+  const storedPreferences = getLocalStorageItem(
     EDITOR_PREFERENCES_STORAGE_KEY,
   );
 
@@ -43,7 +45,7 @@ function saveEditorPreferences(preferences: EditorPreferences) {
     return;
   }
 
-  window.localStorage.setItem(
+  setLocalStorageItem(
     EDITOR_PREFERENCES_STORAGE_KEY,
     JSON.stringify(preferences),
   );

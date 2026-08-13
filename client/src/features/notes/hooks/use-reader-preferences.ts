@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { getLocalStorageItem, setLocalStorageItem } from "@/utils/browser-storage";
+
 import type {
   ReaderFontFamily,
   ReaderFontSize,
@@ -38,7 +40,7 @@ function loadReaderPreferences(): ReaderPreferences {
     return defaultReaderPreferences;
   }
 
-  const storedPreferences = window.localStorage.getItem(
+  const storedPreferences = getLocalStorageItem(
     READER_PREFERENCES_STORAGE_KEY,
   );
 
@@ -75,7 +77,7 @@ function saveReaderPreferences(preferences: ReaderPreferences) {
     return;
   }
 
-  window.localStorage.setItem(
+  setLocalStorageItem(
     READER_PREFERENCES_STORAGE_KEY,
     JSON.stringify(preferences),
   );

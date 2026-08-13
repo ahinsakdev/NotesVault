@@ -86,7 +86,7 @@ export function ConfirmDialog({
 
           <button
             aria-label="Close confirmation dialog"
-            className="flex size-8 shrink-0 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+            className="notesvault-focus-ring flex size-8 shrink-0 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
             onClick={onCancel}
             type="button"
           >

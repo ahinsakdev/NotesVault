@@ -223,7 +223,7 @@ function SearchFilterToggle({
     <button
       aria-pressed={active}
       className={cn(
-        "inline-flex h-8 items-center gap-1.5 border px-2.5 text-[10px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+        "notesvault-focus-ring inline-flex h-8 items-center gap-1.5 border px-2.5 text-[10px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
         active
           ? "border-primary/30 bg-primary/10 text-primary"
           : "border-border bg-background text-muted-foreground hover:bg-secondary hover:text-foreground",

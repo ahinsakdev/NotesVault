@@ -60,7 +60,7 @@ export function Toast({ id, message, title, variant, onDismiss }: ToastProps) {
 
       <button
         aria-label="Dismiss notification"
-        className="flex size-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        className="notesvault-focus-ring flex size-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
         onClick={() => onDismiss(id)}
         type="button"
       >

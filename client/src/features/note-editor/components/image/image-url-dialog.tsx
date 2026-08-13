@@ -102,7 +102,7 @@ export function ImageUrlDialog({
 
           <button
             aria-label="Close dialog"
-            className="ml-auto flex size-8 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+            className="notesvault-focus-ring ml-auto flex size-8 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
             onClick={handleClose}
             type="button"
           >
@@ -152,7 +152,7 @@ export function ImageUrlDialog({
 
         <footer className="flex justify-end gap-2 border-t border-border bg-surface-subtle px-4 py-3">
           <button
-            className="h-8 border border-border bg-background px-3 text-[10px] font-medium text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+            className="notesvault-focus-ring h-8 border border-border bg-background px-3 text-[10px] font-medium text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
             onClick={handleClose}
             type="button"
           >
@@ -160,7 +160,7 @@ export function ImageUrlDialog({
           </button>
 
           <button
-            className="h-8 bg-primary px-3 text-[10px] font-medium text-primary-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-primary-hover"
+            className="notesvault-focus-ring h-8 bg-primary px-3 text-[10px] font-medium text-primary-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-primary-hover"
             type="submit"
           >
             Insert image

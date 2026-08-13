@@ -93,7 +93,7 @@ export function NoteReaderPreferences({
 
           <button
             aria-label="Close reading preferences"
-            className="ml-auto flex size-8 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+            className="notesvault-focus-ring ml-auto flex size-8 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
             onClick={onClose}
             ref={closeButtonRef}
             type="button"
@@ -186,7 +186,7 @@ export function NoteReaderPreferences({
           </PreferenceSection>
 
           <button
-            className="inline-flex h-8 w-full items-center justify-center gap-2 border border-border bg-background px-3 text-[10px] font-medium text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+            className="notesvault-focus-ring inline-flex h-8 w-full items-center justify-center gap-2 border border-border bg-background px-3 text-[10px] font-medium text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
             onClick={onReset}
             type="button"
           >
@@ -233,7 +233,7 @@ function PreferenceButton({ isActive, label, onClick }: PreferenceButtonProps) {
     <button
       aria-pressed={isActive}
       className={cn(
-        "flex min-h-9 items-center justify-center border px-2 text-[10px] font-medium transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)]",
+        "notesvault-focus-ring flex min-h-9 items-center justify-center border px-2 text-[10px] font-medium transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)]",
         isActive
           ? "border-border-strong bg-secondary text-foreground"
           : "border-border bg-background text-muted-foreground hover:bg-secondary/70 hover:text-foreground",

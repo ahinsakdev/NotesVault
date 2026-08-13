@@ -7,59 +7,121 @@ import { env } from "./config/env.js";
 let httpServer: Server | null = null;
 let isShuttingDown = false;
 
-async function shutdown(signal: NodeJS.Signals): Promise<void> {
+function listenForRequests(): Promise<Server> {
+  const app = createApp();
+
+  return new Promise((resolve, reject) => {
+    const server = app.listen(env.PORT);
+
+    function handleListening(): void {
+      server.off("error", handleError);
+      resolve(server);
+    }
+
+    function handleError(error: Error): void {
+      server.off("listening", handleListening);
+      reject(error);
+    }
+
+    server.once("listening", handleListening);
+    server.once("error", handleError);
+  });
+}
+
+async function closeHttpServer(): Promise<void> {
+  if (!httpServer) {
+    return;
+  }
+
+  const server = httpServer;
+  httpServer = null;
+
+  await new Promise<void>((resolve, reject) => {
+    server.close((error) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
+async function shutdown(reason: string): Promise<void> {
   if (isShuttingDown) {
     return;
   }
 
   isShuttingDown = true;
 
-  console.log(`${signal} received. Shutting down NotesVault API...`);
+  console.log(`${reason} received. Shutting down NotesVault API...`);
 
-  if (httpServer) {
-    await new Promise<void>((resolve, reject) => {
-      httpServer?.close((error) => {
-        if (error) {
-          reject(error);
-          return;
-        }
+  try {
+    await closeHttpServer();
+    await disconnectDatabase();
 
-        resolve();
-      });
-    });
+    console.log("NotesVault API shut down cleanly");
+  } catch (error) {
+    console.error("NotesVault API shutdown failed:", error);
+    process.exitCode = 1;
   }
+}
 
-  await disconnectDatabase();
+function handleFatalError(
+  source: "uncaughtException" | "unhandledRejection",
+  error: unknown,
+): void {
+  console.error(`Fatal ${source}:`, error);
 
-  console.log("NotesVault API shut down cleanly");
+  process.exitCode = 1;
+
+  void shutdown(source).finally(() => {
+    process.exit(1);
+  });
 }
 
 async function startServer(): Promise<void> {
   try {
     await connectDatabase();
 
-    const app = createApp();
+    httpServer = await listenForRequests();
 
-    httpServer = app.listen(env.PORT, () => {
-      console.log(`NotesVault API running on http://localhost:${env.PORT}`);
-    });
+    console.log(`NotesVault API listening on port ${env.PORT}`);
   } catch (error) {
     console.error("Failed to start NotesVault API:", error);
 
     process.exitCode = 1;
+
+    try {
+      await disconnectDatabase();
+    } catch (disconnectError) {
+      console.error(
+        "Failed to disconnect MongoDB after startup failure:",
+        disconnectError,
+      );
+    }
   }
 }
 
 process.once("SIGINT", () => {
   void shutdown("SIGINT").finally(() => {
-    process.exit();
+    process.exit(process.exitCode ?? 0);
   });
 });
 
 process.once("SIGTERM", () => {
   void shutdown("SIGTERM").finally(() => {
-    process.exit();
+    process.exit(process.exitCode ?? 0);
   });
+});
+
+process.once("uncaughtException", (error) => {
+  handleFatalError("uncaughtException", error);
+});
+
+process.once("unhandledRejection", (reason) => {
+  handleFatalError("unhandledRejection", reason);
 });
 
 void startServer();

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 
 import { App } from "@/app/app";
 import { AppProviders } from "@/app/app-providers";
+import { AppErrorBoundary } from "@/components/errors/app-error-boundary";
 import "@/styles/globals.css";
 
 const rootElement = document.getElementById("root");
@@ -14,7 +15,9 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <AppProviders>
-      <App />
+      <AppErrorBoundary>
+        <App />
+      </AppErrorBoundary>
     </AppProviders>
   </StrictMode>,
 );

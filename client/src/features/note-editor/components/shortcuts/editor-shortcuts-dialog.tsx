@@ -112,7 +112,7 @@ export function EditorShortcutsDialog({
 
           <button
             aria-label="Close keyboard shortcuts"
-            className="ml-auto flex size-8 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+            className="notesvault-focus-ring ml-auto flex size-8 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
             onClick={handleClose}
             type="button"
           >

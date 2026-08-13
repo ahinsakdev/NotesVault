@@ -99,7 +99,7 @@ export function NotificationPanel({
 
         {unreadCount > 0 ? (
           <button
-            className="inline-flex h-7 items-center gap-1.5 px-2 text-[9px] font-medium text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+            className="notesvault-focus-ring inline-flex h-7 items-center gap-1.5 px-2 text-[9px] font-medium text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
             onClick={onMarkAllAsRead}
             ref={firstActionRef}
             type="button"

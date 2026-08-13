@@ -56,6 +56,13 @@ export function AppLayout() {
 
   return (
     <AppShellProvider value={appShellValue}>
+      <a
+        className="fixed left-4 top-4 z-[200] -translate-y-24 border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-dialog transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+        href="#main-content"
+      >
+        Skip to main content
+      </a>
+
       <div className="flex h-screen overflow-hidden bg-background text-foreground">
         <AppSidebar
           isCollapsed={isSidebarCollapsed}
@@ -115,6 +122,8 @@ export function AppLayout() {
           <main
             className="relative z-0 min-h-0 min-w-0 flex-1 overflow-y-auto bg-background"
             data-app-scroll-container
+            id="main-content"
+            tabIndex={-1}
           >
             <div
               className={cn(

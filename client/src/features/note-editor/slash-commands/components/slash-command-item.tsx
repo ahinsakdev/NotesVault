@@ -18,7 +18,7 @@ export function SlashCommandItem({
   return (
     <button
       className={cn(
-        "flex w-full items-start gap-3 px-3 py-2 text-left transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)]",
+        "notesvault-focus-ring flex w-full items-start gap-3 px-3 py-2 text-left transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)]",
         isSelected
           ? "bg-secondary text-foreground"
           : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
