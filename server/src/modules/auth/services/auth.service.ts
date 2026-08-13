@@ -17,6 +17,8 @@ import {
 } from "./password-reset-token.service.js";
 
 import type { ResetPasswordInput } from "../schemas/reset-password.schema.js";
+import type { ChangePasswordInput } from "../schemas/change-password.schema.js";
+import type { UpdateProfileInput } from "../schemas/update-profile.schema.js";
 
 export async function signupUser(
   input: SignupInput,
@@ -161,6 +163,102 @@ export async function resetUserPassword(
   }
 
   user.passwordHash = await hashPassword(input.password);
+
+  await user.save();
+
+  await PasswordResetTokenModel.deleteMany({
+    userId: user._id,
+  });
+}
+
+export async function updateUserProfile(
+  userId: string,
+  input: UpdateProfileInput,
+): Promise<AuthenticatedUser> {
+  const user = await UserModel.findById(userId);
+
+  if (!user) {
+    throw new AppError(401, "Authentication required", "UNAUTHENTICATED");
+  }
+
+  const existingUser = await UserModel.exists({
+    _id: {
+      $ne: user._id,
+    },
+    email: input.email,
+  });
+
+  if (existingUser) {
+    throw new AppError(
+      409,
+      "An account with this email already exists",
+      "EMAIL_ALREADY_IN_USE",
+    );
+  }
+
+  user.firstName = input.firstName;
+  user.lastName = input.lastName;
+  user.email = input.email;
+
+  try {
+    await user.save();
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === 11000
+    ) {
+      throw new AppError(
+        409,
+        "An account with this email already exists",
+        "EMAIL_ALREADY_IN_USE",
+      );
+    }
+
+    throw error;
+  }
+
+  return serializeUser(user);
+}
+
+export async function changeUserPassword(
+  userId: string,
+  input: ChangePasswordInput,
+): Promise<void> {
+  const user = await UserModel.findById(userId).select("+passwordHash");
+
+  if (!user) {
+    throw new AppError(401, "Authentication required", "UNAUTHENTICATED");
+  }
+
+  const isCurrentPasswordValid = await verifyPassword(
+    input.currentPassword,
+    user.passwordHash,
+  );
+
+  if (!isCurrentPasswordValid) {
+    throw new AppError(
+      400,
+      "Current password is incorrect",
+      "INVALID_CURRENT_PASSWORD",
+    );
+  }
+
+  const isSamePassword = await verifyPassword(
+    input.newPassword,
+    user.passwordHash,
+  );
+
+  if (isSamePassword) {
+    throw new AppError(
+      400,
+      "New password must be different from your current password",
+      "PASSWORD_REUSE_NOT_ALLOWED",
+    );
+  }
+
+  user.passwordHash = await hashPassword(input.newPassword);
 
   await user.save();
 

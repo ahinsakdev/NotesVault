@@ -1,7 +1,9 @@
 import { AppearanceSettings } from "../components/appearance-settings";
 import { EditorSettings } from "../components/editor-settings";
 import { NoteSettings } from "../components/note-settings";
+import { ProfileSettings } from "../components/profile-settings";
 import { ReadingSettings } from "../components/reading-settings";
+import { SecuritySettings } from "../components/security-settings";
 
 export function SettingsPage() {
   return (
@@ -20,10 +22,12 @@ export function SettingsPage() {
         </p>
       </header>
 
+      <ProfileSettings />
       <AppearanceSettings />
       <ReadingSettings />
       <EditorSettings />
       <NoteSettings />
+      <SecuritySettings />
     </div>
   );
 }

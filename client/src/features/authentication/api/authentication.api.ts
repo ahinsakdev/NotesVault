@@ -7,6 +7,8 @@ import type {
   LoginRequest,
   ResetPasswordRequest,
   SignupRequest,
+  UpdateProfileRequest,
+  ChangePasswordRequest,
 } from "../types/authentication.types";
 
 type AuthenticationResponse = {
@@ -67,6 +69,28 @@ export async function resetPassword(
 ): Promise<MessageResponse> {
   const response = await apiClient.post<MessageResponse>(
     API_ENDPOINTS.auth.resetPassword,
+    request,
+  );
+
+  return response.data;
+}
+
+export async function updateProfile(
+  request: UpdateProfileRequest,
+): Promise<AuthenticationResponse> {
+  const response = await apiClient.patch<AuthenticationResponse>(
+    API_ENDPOINTS.auth.profile,
+    request,
+  );
+
+  return response.data;
+}
+
+export async function changePassword(
+  request: ChangePasswordRequest,
+): Promise<MessageResponse> {
+  const response = await apiClient.patch<MessageResponse>(
+    API_ENDPOINTS.auth.password,
     request,
   );
 

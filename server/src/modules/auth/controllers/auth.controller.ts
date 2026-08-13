@@ -1,23 +1,26 @@
 import type { Request, Response } from "express";
 
 import { env } from "../../../config/env.js";
-import type { AuthenticatedRequest } from "../types/authenticated-request.js";
+import type { ChangePasswordInput } from "../schemas/change-password.schema.js";
 import type { ForgotPasswordInput } from "../schemas/forgot-password.schema.js";
 import type { LoginInput } from "../schemas/login.schema.js";
+import type { ResetPasswordInput } from "../schemas/reset-password.schema.js";
 import type { SignupInput } from "../schemas/signup.schema.js";
+import type { UpdateProfileInput } from "../schemas/update-profile.schema.js";
 import {
+  changeUserPassword,
   loginUser,
   requestPasswordReset,
   resetUserPassword,
   signupUser,
+  updateUserProfile,
 } from "../services/auth.service.js";
 import {
   clearSessionCookie,
   setSessionCookie,
 } from "../services/session-cookie.service.js";
-
 import { createAccessToken } from "../services/token.service.js";
-import type { ResetPasswordInput } from "../schemas/reset-password.schema.js";
+import type { AuthenticatedRequest } from "../types/authenticated-request.js";
 
 export async function signup(
   request: Request,
@@ -99,5 +102,39 @@ export async function resetPassword(
 
   response.status(200).json({
     message: "Password reset successfully.",
+  });
+}
+
+export async function updateProfile(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const authenticatedRequest = request as AuthenticatedRequest;
+  const input = request.body as UpdateProfileInput;
+
+  const user = await updateUserProfile(
+    authenticatedRequest.user.id,
+    input,
+  );
+
+  response.status(200).json({
+    user,
+  });
+}
+
+export async function changePassword(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const authenticatedRequest = request as AuthenticatedRequest;
+  const input = request.body as ChangePasswordInput;
+
+  await changeUserPassword(
+    authenticatedRequest.user.id,
+    input,
+  );
+
+  response.status(200).json({
+    message: "Password changed successfully.",
   });
 }
