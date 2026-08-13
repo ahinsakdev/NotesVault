@@ -101,7 +101,7 @@ export function NotesCollectionPage({
                     </Button>
                   ) : null}
 
-                  {!hasActiveFilters ? (
+                  {!hasActiveFilters && scope !== "archived" ? (
                     <Button onClick={handleCreateNote} size="sm">
                       New note
                     </Button>

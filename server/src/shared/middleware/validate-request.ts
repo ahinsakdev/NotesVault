@@ -18,6 +18,12 @@ export function validateRequest(
       return;
     }
 
+    if (target === "query") {
+      Object.assign(request.query, result.data);
+    } else {
+      request[target] = result.data;
+    }
+
     next();
   };
 }

@@ -106,6 +106,13 @@ noteSchema.index({
 
 noteSchema.index({
   userId: 1,
+  isArchived: 1,
+  deletedAt: 1,
+  updatedAt: -1,
+});
+
+noteSchema.index({
+  userId: 1,
   isPinned: 1,
   updatedAt: -1,
 });

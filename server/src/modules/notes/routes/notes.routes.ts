@@ -57,7 +57,6 @@ notesRouter.patch(
   "/:noteId/restore",
   validateRequest(noteIdParamsSchema, "params"),
   restoreNoteController,
-  searchNotesController,
 );
 
 notesRouter.delete(

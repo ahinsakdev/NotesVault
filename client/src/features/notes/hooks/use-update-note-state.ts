@@ -1,5 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { searchQueryKeys } from "@/features/search/hooks/use-search-notes";
+
 import { updateNote } from "../api/notes.api";
 import type { Note } from "../types/note.types";
 import { notesQueryKeys } from "./use-notes";
@@ -92,9 +94,14 @@ export function useUpdateNoteState() {
         );
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: notesQueryKeys.all,
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: notesQueryKeys.all,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: searchQueryKeys.all,
+        }),
+      ]);
     },
   });
 }

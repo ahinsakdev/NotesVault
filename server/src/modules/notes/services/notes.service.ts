@@ -453,6 +453,7 @@ export async function restoreNoteForUser(
   }
 
   note.deletedAt = null;
+  note.isArchived = false;
 
   await note.save();
 
