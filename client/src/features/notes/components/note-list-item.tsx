@@ -1,4 +1,14 @@
-import { Clock3, Edit3, Eye, Folder, Pin, Star } from "lucide-react";
+import {
+  Archive,
+  ArchiveRestore,
+  Clock3,
+  Edit3,
+  Eye,
+  Folder,
+  Pin,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { Link } from "react-router";
 
 import { ROUTES } from "@/app/routes";
@@ -8,9 +18,17 @@ import { formatNoteDate } from "../utils/note.utils";
 
 type NoteListItemProps = {
   note: Note;
+  onArchive?: (note: Note) => void;
+  onMoveToTrash?: (note: Note) => void;
+  onUnarchive?: (note: Note) => void;
 };
 
-export function NoteListItem({ note }: NoteListItemProps) {
+export function NoteListItem({
+  note,
+  onArchive,
+  onMoveToTrash,
+  onUnarchive,
+}: NoteListItemProps) {
   const readRoute = ROUTES.noteRead.replace(":noteId", note.id);
   const editRoute = ROUTES.noteDetails.replace(":noteId", note.id);
 
@@ -121,6 +139,48 @@ export function NoteListItem({ note }: NoteListItemProps) {
             Edit
           </Link>
         </div>
+
+        {onArchive ? (
+          <div className="flex items-center border-l border-border pl-2">
+            <button
+              aria-label={`Archive ${note.title}`}
+              className="notesvault-focus-ring inline-flex size-7 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+              onClick={() => onArchive(note)}
+              title="Archive note"
+              type="button"
+            >
+              <Archive aria-hidden="true" className="size-3.5" />
+            </button>
+          </div>
+        ) : null}
+
+        {onUnarchive || onMoveToTrash ? (
+          <div className="flex items-center gap-1 border-l border-border pl-2">
+            {onUnarchive ? (
+              <button
+                aria-label={`Unarchive ${note.title}`}
+                className="notesvault-focus-ring inline-flex size-7 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+                onClick={() => onUnarchive(note)}
+                title="Unarchive note"
+                type="button"
+              >
+                <ArchiveRestore aria-hidden="true" className="size-3.5" />
+              </button>
+            ) : null}
+
+            {onMoveToTrash ? (
+              <button
+                aria-label={`Move ${note.title} to trash`}
+                className="notesvault-focus-ring inline-flex size-7 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-danger-subtle hover:text-danger"
+                onClick={() => onMoveToTrash(note)}
+                title="Move to trash"
+                type="button"
+              >
+                <Trash2 aria-hidden="true" className="size-3.5" />
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </article>
   );

@@ -1,4 +1,14 @@
-import { Clock3, Edit3, Eye, Folder, Pin, Star } from "lucide-react";
+import {
+  Archive,
+  ArchiveRestore,
+  Clock3,
+  Edit3,
+  Eye,
+  Folder,
+  Pin,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { Link } from "react-router";
 
 import { ROUTES } from "@/app/routes";
@@ -8,9 +18,17 @@ import { formatNoteDate } from "../utils/note.utils";
 
 type NoteCardProps = {
   note: Note;
+  onArchive?: (note: Note) => void;
+  onMoveToTrash?: (note: Note) => void;
+  onUnarchive?: (note: Note) => void;
 };
 
-export function NoteCard({ note }: NoteCardProps) {
+export function NoteCard({
+  note,
+  onArchive,
+  onMoveToTrash,
+  onUnarchive,
+}: NoteCardProps) {
   const readRoute = ROUTES.noteRead.replace(":noteId", note.id);
   const editRoute = ROUTES.noteDetails.replace(":noteId", note.id);
 
@@ -22,28 +40,70 @@ export function NoteCard({ note }: NoteCardProps) {
         to={readRoute}
       />
 
-      <div className="pointer-events-none relative z-10 flex items-start justify-between gap-3">
-        <h2 className="line-clamp-2 min-w-0 text-sm font-semibold leading-5 tracking-[-0.02em] text-foreground">
+      <div className="relative z-20 flex items-start justify-between gap-3">
+        <h2 className="pointer-events-none line-clamp-2 min-w-0 text-sm font-semibold leading-5 tracking-[-0.02em] text-foreground">
           {note.title}
         </h2>
 
-        <div className="flex shrink-0 items-center gap-2 text-primary">
-          {note.isPinned ? (
-            <Pin
-              aria-label="Pinned note"
-              className="size-3.5"
-              fill="currentColor"
-              strokeWidth={1.8}
-            />
+        <div className="flex shrink-0 items-center gap-1">
+          {onUnarchive ? (
+            <button
+              aria-label={`Unarchive ${note.title}`}
+              className="notesvault-focus-ring inline-flex size-7 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+              onClick={() => onUnarchive(note)}
+              title="Unarchive note"
+              type="button"
+            >
+              <ArchiveRestore aria-hidden="true" className="size-3.5" />
+            </button>
           ) : null}
 
-          {note.isFavorite ? (
-            <Star
-              aria-label="Favorite note"
-              className="size-3.5"
-              fill="currentColor"
-              strokeWidth={1.8}
-            />
+          {onMoveToTrash ? (
+            <button
+              aria-label={`Move ${note.title} to trash`}
+              className="notesvault-focus-ring inline-flex size-7 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-danger-subtle hover:text-danger"
+              onClick={() => onMoveToTrash(note)}
+              title="Move to trash"
+              type="button"
+            >
+              <Trash2 aria-hidden="true" className="size-3.5" />
+            </button>
+          ) : null}
+
+          {!onUnarchive && !onMoveToTrash ? (
+            <>
+              <div className="pointer-events-none flex items-center gap-2 text-primary">
+                {note.isPinned ? (
+                  <Pin
+                    aria-label="Pinned note"
+                    className="size-3.5"
+                    fill="currentColor"
+                    strokeWidth={1.8}
+                  />
+                ) : null}
+
+                {note.isFavorite ? (
+                  <Star
+                    aria-label="Favorite note"
+                    className="size-3.5"
+                    fill="currentColor"
+                    strokeWidth={1.8}
+                  />
+                ) : null}
+              </div>
+
+              {onArchive ? (
+                <button
+                  aria-label={`Archive ${note.title}`}
+                  className="notesvault-focus-ring inline-flex size-7 items-center justify-center text-muted-foreground transition-colors duration-[var(--motion-standard)] ease-[var(--motion-ease-standard)] hover:bg-secondary hover:text-foreground"
+                  onClick={() => onArchive(note)}
+                  title="Archive note"
+                  type="button"
+                >
+                  <Archive aria-hidden="true" className="size-3.5" />
+                </button>
+              ) : null}
+            </>
           ) : null}
         </div>
       </div>
@@ -96,6 +156,7 @@ export function NoteCard({ note }: NoteCardProps) {
             <Edit3 aria-hidden="true" className="size-3" />
             Edit
           </Link>
+
         </div>
       </footer>
     </article>

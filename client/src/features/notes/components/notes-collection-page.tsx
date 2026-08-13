@@ -25,7 +25,10 @@ type NotesCollectionPageProps = {
   isError: boolean;
   isLoading: boolean;
   notes: Note[];
+  onArchive?: (note: Note) => void;
+  onMoveToTrash?: (note: Note) => void;
   onRetry: () => void;
+  onUnarchive?: (note: Note) => void;
   scope?: NotesCollectionScope;
   title: string;
 };
@@ -39,7 +42,10 @@ export function NotesCollectionPage({
   isError,
   isLoading,
   notes,
+  onArchive,
+  onMoveToTrash,
   onRetry,
+  onUnarchive,
   scope = "active",
   title,
 }: NotesCollectionPageProps) {
@@ -117,9 +123,19 @@ export function NotesCollectionPage({
               title={hasActiveFilters ? "No matching notes" : emptyTitle}
             />
           ) : filters.view === "grid" ? (
-            <NotesGrid notes={filteredNotes} />
+            <NotesGrid
+              notes={filteredNotes}
+              onArchive={onArchive}
+              onMoveToTrash={onMoveToTrash}
+              onUnarchive={onUnarchive}
+            />
           ) : (
-            <NotesList notes={filteredNotes} />
+            <NotesList
+              notes={filteredNotes}
+              onArchive={onArchive}
+              onMoveToTrash={onMoveToTrash}
+              onUnarchive={onUnarchive}
+            />
           )}
         </div>
       </section>

@@ -6,10 +6,43 @@ import { NotesList } from "../components/notes-list";
 import { NotesSkeleton } from "../components/notes-skeleton";
 import { NotesToolbar } from "../components/notes-toolbar";
 import { useNotes } from "../hooks/use-notes";
+import { useUpdateNoteState } from "../hooks/use-update-note-state";
+import type { Note } from "../types/note.types";
+import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/utils/get-error-message";
 import { useNotesFilters } from "../hooks/use-notes-filters";
 
 export function NotesPage() {
   const { data: notes = [], isError, isLoading, refetch } = useNotes();
+  const updateNoteStateMutation = useUpdateNoteState();
+  const { showToast } = useToast();
+
+  async function handleArchive(note: Note) {
+    if (updateNoteStateMutation.isPending) {
+      return;
+    }
+
+    try {
+      await updateNoteStateMutation.mutateAsync({
+        noteId: note.id,
+        updates: {
+          isArchived: true,
+        },
+      });
+
+      showToast({
+        message: `"${note.title}" was moved to Archived.`,
+        title: "Note archived",
+        variant: "success",
+      });
+    } catch (error) {
+      showToast({
+        message: getErrorMessage(error),
+        title: "Unable to archive note",
+        variant: "error",
+      });
+    }
+  }
 
   const {
     filters,
@@ -57,9 +90,19 @@ export function NotesPage() {
               onClearFilters={clearFilters}
             />
           ) : filters.view === "grid" ? (
-            <NotesGrid notes={filteredNotes} />
+            <NotesGrid
+              notes={filteredNotes}
+              onArchive={(note) => {
+                void handleArchive(note);
+              }}
+            />
           ) : (
-            <NotesList notes={filteredNotes} />
+            <NotesList
+              notes={filteredNotes}
+              onArchive={(note) => {
+                void handleArchive(note);
+              }}
+            />
           )}
         </div>
       </section>
