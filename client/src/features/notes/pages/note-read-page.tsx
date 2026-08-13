@@ -26,6 +26,10 @@ import { useReaderKeyboardShortcuts } from "../hooks/use-reader-keyboard-shortcu
 import { useReaderPreferences } from "../hooks/use-reader-preferences";
 import type { Note } from "../types/note.types";
 import type { NoteOutlineItem } from "../types/note-outline.types";
+import {
+  getNoteReadingMinutes,
+  getNoteWordCount,
+} from "../utils/note-reading.utils";
 
 type NoteReadDocumentProps = {
   note: Note;
@@ -71,11 +75,11 @@ function NoteReadDocument({ note }: NoteReadDocumentProps) {
   const activeHeadingId = useActiveReadingHeading(outline);
 
   const wordCount = useMemo(
-    () => note.preview.trim().split(/\s+/).filter(Boolean).length,
-    [note.preview],
+    () => getNoteWordCount(note.content),
+    [note.content],
   );
 
-  const readingMinutes = Math.max(1, Math.ceil(wordCount / 220));
+  const readingMinutes = getNoteReadingMinutes(wordCount);
 
   const handleCloseOutline = useCallback(() => {
     setIsOutlineOpen(false);

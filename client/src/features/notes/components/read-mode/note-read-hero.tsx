@@ -24,7 +24,13 @@ export function NoteReadHero({
   return (
     <section className="border-b border-border px-4 py-6 sm:px-8 sm:py-8 lg:px-10">
       <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
-        <h1 className="font-sans text-2xl font-normal leading-[1.12] tracking-[-0.025em] text-foreground sm:text-3xl lg:text-[2.75rem]">
+        <h1
+          className="text-2xl font-medium leading-[1.14] tracking-[-0.015em] text-foreground/85 sm:text-3xl lg:text-[2.75rem]"
+          style={{
+            fontFamily:
+              '"Avenir Next", Avenir, "Century Gothic", sans-serif',
+          }}
+        >
           {note.title}
         </h1>
 
